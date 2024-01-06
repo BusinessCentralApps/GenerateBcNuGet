@@ -1,0 +1,40 @@
+name: Generate NuGet Packages
+
+# Controls when the workflow will run
+on:
+  workflow_dispatch:
+    inputs:
+      apps:
+        description: Comma separated list of apps (leave empty to use APPS secret)
+        required: false
+        default: ''
+      nuGetServerUrl:
+        description: NuGet server URL (leave empty to use NUGETSERVERURL variable)
+        required: false
+        default: ''
+      nuGetToken:
+        description: NuGet auth token (leave empty to use NUGETTOKEN secret)
+        required: false
+        default: ''
+
+jobs:
+  GenerateNuGetPackages:
+    name: Generate NuGet Packages
+    runs-on: [ ubuntu-latest ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Mask input
+        shell: pwsh
+        run: |
+          . (Join-Path $env:GITHUB_WORKSPACE "MaskInput.ps1")
+
+      - name: Generate NuGet Packages
+        shell: pwsh
+        env:
+          nuGetToken: ${{ github.event.inputs.nuGetToken != '' && github.event.inputs.nuGetToken || secrets.NUGETTOKEN }}
+          nuGetServerUrl: ${{ github.event.inputs.nuGetServerUrl != '' && github.event.inputs.nuGetServerUrl || vars.NUGETSERVERURL }}
+          apps: ${{ github.event.inputs.apps != '' && github.event.inputs.apps || secrets.APPS }}
+        run: |
+          . (Join-Path $env:GITHUB_WORKSPACE "GenerateNuGetPackages.ps1")

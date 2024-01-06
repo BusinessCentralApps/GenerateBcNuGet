@@ -11,15 +11,11 @@ BcNuGet packages comes in two flavors:
 
 It is NOT supported to put both these types of BcNuGet packages on the same NuGet Server (it also wouldn't make much sense I think...)
 
-## How to get started?
+## Prerequisites
 
-To get started, make sure you have all the prerequisites and then follow the step-by-step guide.
-
-### Prerequisites
-
-You need a NuGet Server where you can place your BcNuGet packages. The tool supports 3 options:
+You need a NuGet Server where you can place your BcNuGet packages. Thìs tool supports 3 options:
 1. nuget.org (public only)
-2. GitHub (private)
+2. GitHub (private only)
 3. Azure DevOps (public or private)
 
 > [!NOTE]
@@ -27,7 +23,7 @@ You need a NuGet Server where you can place your BcNuGet packages. The tool supp
 
 For the selected option, you will need a server url and an authentication token (API Key). The following describes how to obtain these:
 
-#### Using nuget.org
+### Using nuget.org
 
 The NuGet server url for nuget.org is always `https://api.nuget.org/v3/index.json`. In order to obtain an API Key, you first need a nuget.org account.
 
@@ -39,7 +35,7 @@ Go to [https://www.nuget.org/account/apikeys](https://www.nuget.org/account/apik
 > nuget.org is public.
 > People doesn't need an invitation or an authentication token in order to read packages from nuget.org.
 
-#### Using GitHub
+### Using GitHub
 
 In order to use GitHub you need a GitHub account, which you probably have since you are reading this. If not, sign up by visiting [https://github.com/signup](https://github.com/signup).
 
@@ -56,7 +52,14 @@ In order to push new packages and package versions, you need to create a Persona
 > GitHub packages are private (even if the owning repository is public)
 > In order for people to get access to your NuGet packages, you need to invite them to your repository (read permissions is sufficient). They will then get an invitation to join the repository and after use their own Personal Access Token with read:packages permissions for accessing packages in your organization.
 
-#### Using Azure DevOps
+### Using Azure DevOps
+
+## Running the
+
+In order to run this tool, you need to create a fork in your own organization or in your personal GitHub account.
+
+## Run the tool
+
 
 
 

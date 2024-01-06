@@ -1,0 +1,130 @@
+name: Generate Runtime NuGet Packages
+
+# Controls when the workflow will run
+on:
+  workflow_dispatch:
+    inputs:
+      nuGetServerUrl:
+        description: NuGet server URL (leave empty to use RUNTIMENUGETSERVERURL variable)
+        required: false
+        default: ''
+      nuGetToken:
+        description: NuGet auth token (leave empty to use RUNTIMENUGETTOKEN or NUGETTOKEN secret)
+        required: false
+        default: ''
+      apps:
+        description: Comma separated list of apps (leave empty to use APPS secret)
+        required: false
+        default: ''
+      dependencies:
+        description: Comma separated list of dependencies (leave empty to use DEPENDENCIES secret)
+        required: false
+        default: ''
+      country:
+        description: Country for the main runtime version (leave empty to use COUNTRY variable, default is w1)
+        required: false
+        default: ''
+      additionalCountries:
+        description: Comma separated list of additional countries (leave empty to use ADDITIONALCOUNTRIES variable, default is none)
+        required: false
+        default: ''
+      artifactVersion:
+        description: Business Central artifacts version range (leave empty to use ARTIFACTVERSION variable, default is to auto-calculate needed artifacts)
+        required: false
+        default: ''
+      artifactType:
+        description: Type of Business Central artifacts to use, onprem or sandbox (leave empty to use ARTIFACTTYPE variable, default is sandbox)
+        required: false
+        default: ''
+      licenseFileUrl:
+        description: License File URL to use for versions before 22.0 (leave empty to use LICENSEFILEURL secret)
+        required: false
+        default: ''
+
+jobs:
+  DetermineArtifacts:
+    name: Determine Business Central Artifacts
+    runs-on: [ ubuntu-latest ]
+    outputs:
+      artifactVersions: ${{ steps.determineArtifacts.outputs.ArtifactVersions }}
+      artifactVersionCount: ${{ steps.determineArtifacts.outputs.ArtifactVersionCount }}
+      runtimeDependencyPackageIds: ${{ steps.determineArtifacts.outputs.RuntimeDependencyPackageIds }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Mask input
+        shell: pwsh
+        run: |
+          . (Join-Path $env:GITHUB_WORKSPACE "MaskInput.ps1")
+
+      - name: Determine Artifacts
+        id: determineArtifacts
+        shell: pwsh
+        env:
+          nuGetToken: ${{ github.event.inputs.nuGetToken != '' && github.event.inputs.nuGetToken || (secrets.RUNTIMENUGETTOKEN != '' && secrets.RUNTIMENUGETTOKEN || secrets.NUGETTOKEN) }}
+          nuGetServerUrl: ${{ github.event.inputs.nuGetServerUrl != '' && github.event.inputs.nuGetServerUrl || vars.RUNTIMENUGETSERVERURL }}
+          apps: ${{ github.event.inputs.apps != '' && github.event.inputs.apps || secrets.APPS }}
+          country: ${{ github.event.inputs.country != '' && github.event.inputs.country || vars.COUNTRY }}
+          artifactVersion: ${{ github.event.inputs.artifactVersion != '' && github.event.inputs.artifactVersion || vars.ARTIFACTVERSION }}
+          artifactType: ${{ github.event.inputs.artifactType != '' && github.event.inputs.artifactType || vars.ARTIFACTTYPE }}
+        run: |
+          . (Join-Path $env:GITHUB_WORKSPACE "DetermineArtifacts.ps1")
+
+  GenerateRuntimeNuGetPackages:
+    needs: [ DetermineArtifacts ]
+    if: needs.DetermineArtifacts.outputs.artifactVersionCount > 0
+    runs-on: [ windows-latest ]
+    strategy:
+      matrix:
+        include: ${{ fromJson(needs.DetermineArtifacts.outputs.artifactVersions) }}
+      fail-fast: false
+    name: Runtime ${{ matrix.artifactVersion }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Mask input
+        shell: pwsh
+        run: |
+          . (Join-Path $env:GITHUB_WORKSPACE "MaskInput.ps1")
+
+      - name: Generate Runtime NuGet Packages
+        shell: pwsh
+        env:
+          nuGetToken: ${{ github.event.inputs.nuGetToken != '' && github.event.inputs.nuGetToken || (secrets.RUNTIMENUGETTOKEN != '' && secrets.RUNTIMENUGETTOKEN || secrets.NUGETTOKEN) }}
+          nuGetServerUrl: ${{ github.event.inputs.nuGetServerUrl != '' && github.event.inputs.nuGetServerUrl || (vars.RUNTIMENUGETSERVERURL != '' && vars.RUNTIMENUGETSERVERURL || vars.NUGETSERVERURL) }}
+          apps: ${{ github.event.inputs.apps != '' && github.event.inputs.apps || secrets.APPS }}
+          dependencies: ${{ github.event.inputs.dependencies != '' && github.event.inputs.dependencies || secrets.DEPENDENCIES }}
+          country: ${{ github.event.inputs.country != '' && github.event.inputs.country || vars.COUNTRY }}
+          additionalCountries: ${{ github.event.inputs.additionalCountries != '' && github.event.inputs.additionalCountries || vars.ADDITIONALCOUNTRIES }}
+          artifactType: ${{ github.event.inputs.artifactType != '' && github.event.inputs.artifactType || vars.ARTIFACTTYPE }}
+          licenseFileUrl: ${{ github.event.inputs.licenseFileUrl != '' && github.event.inputs.licenseFileUrl || secrets.LICENSEFILEURL }}
+          artifactVersion: ${{ matrix.artifactVersion }}
+          incompatibleArtifactVersion: ${{ matrix.incompatibleArtifactVersion }}
+          runtimeDependencyPackageIds: ${{ needs.DetermineArtifacts.outputs.runtimeDependencyPackageIds }}
+        run: |
+          . (Join-Path $env:GITHUB_WORKSPACE "GenerateRuntimeNuGetPackages.ps1")
+
+  GenerateIndirectNuGetPackage:
+    name: Generate Indirect NuGet Package
+    needs: [ DetermineArtifacts, GenerateRuntimeNuGetPackages ]
+    if: needs.DetermineArtifacts.outputs.artifactVersionCount > 0
+    runs-on: [ ubuntu-latest ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Mask input
+        shell: pwsh
+        run: |
+          . (Join-Path $env:GITHUB_WORKSPACE "MaskInput.ps1")
+
+      - name: Generate Indirect NuGet Package
+        shell: pwsh
+        env:
+          nuGetToken: ${{ github.event.inputs.nuGetToken != '' && github.event.inputs.nuGetToken || (secrets.RUNTIMENUGETTOKEN != '' && secrets.RUNTIMENUGETTOKEN || secrets.NUGETTOKEN) }}
+          nuGetServerUrl: ${{ github.event.inputs.nuGetServerUrl != '' && github.event.inputs.nuGetServerUrl || (vars.RUNTIMENUGETSERVERURL != '' && vars.RUNTIMENUGETSERVERURL || vars.NUGETSERVERURL) }}
+          apps: ${{ github.event.inputs.apps != '' && github.event.inputs.apps || secrets.APPS }}
+        run: |
+          . (Join-Path $env:GITHUB_WORKSPACE "GenerateIndirectPackage.ps1")
