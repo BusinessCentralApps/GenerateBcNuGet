@@ -83,7 +83,9 @@ Running the **Generate Runtime NuGet Packages** workflow will generate BcNuGet p
 
 Mandatory fields are **nuGetServerUrl**, **nuGetToken** and **apps**. Parameters can be specified in the UI or created as secrets and variables, but they can also be provided as parameters when invoking the workflow from code.
 
-Example on how I created full packages in [https://github.com/FreddyKristiansen-Apps/BingMapsPTE](https://github.com/FreddyKristiansen-Apps/BingMapsPTE)
+## Example 1
+
+How I created full packages in [https://github.com/FreddyKristiansen-Apps/BingMapsPTE](https://github.com/FreddyKristiansen-Apps/BingMapsPTE)
 
 ```powershell
 $apps = 'https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/6.0.0/bcsamples-bingmaps.pte-main-Apps-5.1.23.0.zip'
@@ -92,11 +94,46 @@ $nuGetToken = '<my Personal Access Token>'
 gh workflow run --repo freddydk/GenerateBcNuGet "Generate NuGet Packages" -f apps=$apps -f nuGetServerUrl=$nuGetServerUrl -f nuGetToken=$nuGetToken
 ```
 
-Example on how I created runtime packages in [https://github.com/FreddyKristiansen-RuntimePackages/BingMapsPTE](https://github.com/FreddyKristiansen-RuntimePackages/BingMapsPTE)
+## Example 2
+ 
+How I created runtime packages in [https://github.com/FreddyKristiansen-RuntimePackages/BingMapsPTE](https://github.com/FreddyKristiansen-RuntimePackages/BingMapsPTE)
 
 ```powershell
 $apps = 'https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/6.0.0/bcsamples-bingmaps.pte-main-Apps-5.1.23.0.zip'
 $nuGetServerUrl = 'https://github.com/FreddyKristiansen-RuntimePackages/BingMapsPTE'
 $nuGetToken = '<my Personal Access Token>'
+gh workflow run --repo freddydk/GenerateBcNuGet "Generate Runtime NuGet Packages" -f apps=$apps -f nuGetServerUrl=$nuGetServerUrl -f nuGetToken=$nuGetToken -f country=w1
+```
+
+## Example 3
+ 
+How I created full packages in [https://dev.azure.com/freddydk/apps/_artifacts/feed/Apps](https://dev.azure.com/freddydk/apps/_artifacts/feed/Apps)
+
+```powershell
+$apps = 'https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/6.0.0/bcsamples-bingmaps.pte-main-Apps-5.1.23.0.zip'
+$nuGetServerUrl = 'https://pkgs.dev.azure.com/freddydk/apps/_packaging/Apps/nuget/v3/index.json'
+$nuGetToken = '<my Personal Access Token>'
+gh workflow run --repo freddydk/GenerateBcNuGet "Generate NuGet Packages" -f apps=$apps -f nuGetServerUrl=$nuGetServerUrl -f nuGetToken=$nuGetToken
+```
+
+## Example 4
+ 
+How I created runtime packages in [https://dev.azure.com/freddydk/apps/_artifacts/feed/RuntimePackages](https://dev.azure.com/freddydk/apps/_artifacts/feed/RuntimePackages)
+
+```powershell
+$apps = 'https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/6.0.0/bcsamples-bingmaps.pte-main-Apps-5.1.23.0.zip'
+$nuGetServerUrl = 'https://pkgs.dev.azure.com/freddydk/apps/_packaging/RuntimePackages/nuget/v3/index.json'
+$nuGetToken = '<my Personal Access Token>'
+gh workflow run --repo freddydk/GenerateBcNuGet "Generate Runtime NuGet Packages" -f apps=$apps -f nuGetServerUrl=$nuGetServerUrl -f nuGetToken=$nuGetToken -f country=w1
+```
+
+## Example 5
+ 
+In order to publish runtime packages on nuget.org, you can use this
+
+```powershell
+$apps = '<your apps>'
+$nuGetServerUrl = 'https://api.nuget.org/v3/index.json'
+$nuGetToken = '<your NuGet API Key>'
 gh workflow run --repo freddydk/GenerateBcNuGet "Generate Runtime NuGet Packages" -f apps=$apps -f nuGetServerUrl=$nuGetServerUrl -f nuGetToken=$nuGetToken -f country=w1
 ```
