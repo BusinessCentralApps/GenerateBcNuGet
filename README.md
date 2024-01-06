@@ -36,16 +36,16 @@ The NuGet server url for nuget.org is always `https://api.nuget.org/v3/index.jso
 Go to [https://www.nuget.org/account/apikeys](https://www.nuget.org/account/apikeys) and create an API Key with permissions to push new packages and package versions.
 
 > [!NOTE]
-> nuget.org is public. People doesn't need an invitation or an authentication token in order to read packages from nuget.org.
-
+> nuget.org is public.
+> People doesn't need an invitation or an authentication token in order to read packages from nuget.org.
 
 #### Using GitHub
 
 In order to use GitHub you need a GitHub account, which you probably have since you are reading this. If not, sign up by visiting [https://github.com/signup](https://github.com/signup).
 
-On GitHub, the NuGet Server is scoped to the organization. In order to create a new NuGet Server, you need to create a new organization. Go to [https://github.com/account/organizations/new?plan=free](https://github.com/account/organizations/new?plan=free) to create a free GitHub organization. I used FreddyKristiansen-RuntimePackages for the server which contains my runtime packages.
+On GitHub, the NuGet Server is scoped to the organization and access to packages is controlled by access to the owning repository. Since you cannot have both types of NuGet packages on the same server, you should create a new organization for NuGet Packages and create an empty repository for each set of packages you want to provide to other people. Go to [https://github.com/account/organizations/new?plan=free](https://github.com/account/organizations/new?plan=free) to create a free GitHub organization. I used FreddyKristiansen-RuntimePackages for the server which contains my runtime packages.
 
-The NuGet server url for my GitHub organization is `https://nuget.pkg.github.com/FreddyKristiansen-RuntimePackages/index.json` - replace the organization name to access yours.
+The NuGet server url for my GitHub organization is `https://nuget.pkg.github.com/FreddyKristiansen-RuntimePackages/index.json` - replace the organization name to access yours. GitHub doesn't support public NuGet packages, access is permitted to authenticated users only, who has access to the repository owning the package. I have created a repository called [https://github.com/FreddyKristiansen-RuntimePackages/BingMapsPTE](https://github.com/FreddyKristiansen-RuntimePackages/BingMapsPTE) and used this URL as the NuGet server url when running the Generate NuGet Packages tool.
 
 In order to push new packages and package versions, you need to create a Personal Access Token (classic) with write:packages permissions.
 
@@ -53,8 +53,12 @@ In order to push new packages and package versions, you need to create a Persona
 > Do NOT share this token with other people, this token should ONLY be used for generating packages.
 
 > [!NOTE]
-> GitHub packages is private.
-> In order to invite other people to access your NuGet packages, you need to invite them to your organization (read permissions is sufficient) and they will then need to create their own Personal Access Token with read:packages permissions to use for access.
+> GitHub packages are private (even if the owning repository is public)
+> In order for people to get access to your NuGet packages, you need to invite them to your repository (read permissions is sufficient). They will then get an invitation to join the repository and after use their own Personal Access Token with read:packages permissions for accessing packages in your organization.
+
+#### Using Azure DevOps
+
+
 
 ### Step-by-step
 
