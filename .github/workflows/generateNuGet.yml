@@ -4,16 +4,16 @@ name: Generate NuGet Packages
 on:
   workflow_dispatch:
     inputs:
-      apps:
-        description: Comma separated list of apps (leave empty to use APPS secret)
-        required: false
-        default: ''
       nuGetServerUrl:
         description: NuGet server URL (leave empty to use NUGETSERVERURL variable)
         required: false
         default: ''
       nuGetToken:
         description: NuGet auth token (leave empty to use NUGETTOKEN secret)
+        required: false
+        default: ''
+      apps:
+        description: Comma separated list of apps (leave empty to use APPS secret)
         required: false
         default: ''
 

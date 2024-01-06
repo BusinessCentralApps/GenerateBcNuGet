@@ -13,6 +13,9 @@ It is NOT supported to put both these types of BcNuGet packages on the same NuGe
 
 ## Prerequisites
 
+You need to have a direct download URL to the apps you want to create BcNuGet packages for. For testing purposes, you can use this URL: `https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/6.0.0/bcsamples-bingmaps.pte-main-Apps-5.1.23.0.zip`, which points to a release in the public BingMaps.PTE repository. The URL can contain a SAS token if private.
+
+
 You need a NuGet Server where you can place your BcNuGet packages. Thìs tool supports 3 options:
 1. nuget.org (public only)
 2. GitHub (private only)
@@ -54,18 +57,30 @@ In order to push new packages and package versions, you need to create a Persona
 
 ### Using Azure DevOps
 
-## Running the
+## Running the tool
 
-In order to run this tool, you need to create a fork in your own organization or in your personal GitHub account.
+In order to run this tool, you need to create a fork in your own organization or in your personal GitHub account and under actions, enable workflows in the fork.
 
-## Run the tool
+Running the **Generate NuGet Packages** workflow will generate BcNuGet packages with full apps.
 
+Running the **Generate Runtime NuGet Packages** workflow will generate BcNuGet packages with runtime packages of your apps.
 
+Mandatory fields are **nuGetServerUrl**, **nuGetToken** and **apps**. Parameters can be specified in the UI or created as secrets and variables, but they can also be provided as parameters when invoking the workflow from code.
 
+Example on how I created full packages in [https://github.com/FreddyKristiansen-Apps/BingMapsPTE](https://github.com/FreddyKristiansen-Apps/BingMapsPTE)
 
-### Step-by-step
+```powershell
+$apps = 'https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/6.0.0/bcsamples-bingmaps.pte-main-Apps-5.1.23.0.zip'
+$nuGetServerUrl = 'https://github.com/FreddyKristiansen-Apps/BingMapsPTE'
+$nuGetToken = '<my Personal Access Token>'
+gh workflow run --repo freddydk/GenerateBcNuGet "Generate NuGet Packages" -f apps=$apps -f nuGetServerUrl=$nuGetServerUrl -f nuGetToken=$nuGetToken
+```
 
-1. Fork this repository to your personal or organizational account
-2. 
-Follow this fairly simple process to get started:
+Example on how I created runtime packages in [https://github.com/FreddyKristiansen-RuntimePackages/BingMapsPTE](https://github.com/FreddyKristiansen-RuntimePackages/BingMapsPTE)
 
+```powershell
+$apps = 'https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/6.0.0/bcsamples-bingmaps.pte-main-Apps-5.1.23.0.zip'
+$nuGetServerUrl = 'https://github.com/FreddyKristiansen-RuntimePackages/BingMapsPTE'
+$nuGetToken = '<my Personal Access Token>'
+gh workflow run --repo freddydk/GenerateBcNuGet "Generate Runtime NuGet Packages" -f apps=$apps -f nuGetServerUrl=$nuGetServerUrl -f nuGetToken=$nuGetToken -f country=w1
+```
