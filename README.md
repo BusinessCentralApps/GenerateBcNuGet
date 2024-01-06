@@ -15,6 +15,7 @@ It is NOT supported to put both these types of BcNuGet packages on the same NuGe
 
 You need to have a direct download URL to the apps you want to create BcNuGet packages for. For testing purposes, you can use this URL: `https://github.com/microsoft/bcsamples-bingmaps.pte/releases/download/6.0.0/bcsamples-bingmaps.pte-main-Apps-5.1.23.0.zip`, which points to a release in the public BingMaps.PTE repository. The URL can contain a SAS token if private.
 
+You need a GitHub account and the [GitHub CLI](https://cli.github.com/) installed.
 
 You need a NuGet Server where you can place your BcNuGet packages. Thìs tool supports 3 options:
 1. nuget.org (public only)
