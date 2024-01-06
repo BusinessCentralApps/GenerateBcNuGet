@@ -136,5 +136,5 @@ In order to publish runtime packages on nuget.org, you can use this
 $apps = '<your apps>'
 $nuGetServerUrl = 'https://api.nuget.org/v3/index.json'
 $nuGetToken = '<your NuGet API Key>'
-gh workflow run --repo freddydk/GenerateBcNuGet "Generate Runtime NuGet Packages" -f apps=$apps -f nuGetServerUrl=$nuGetServerUrl -f nuGetToken=$nuGetToken -f country=w1
+gh workflow run --repo <your account>/GenerateBcNuGet "Generate Runtime NuGet Packages" -f apps=$apps -f nuGetServerUrl=$nuGetServerUrl -f nuGetToken=$nuGetToken -f country=w1
 ```
