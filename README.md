@@ -34,6 +34,9 @@ The NuGet server url for nuget.org is always `https://api.nuget.org/v3/index.jso
 
 Go to [https://www.nuget.org/account/apikeys](https://www.nuget.org/account/apikeys) and create an API Key with permissions to push new packages and package versions.
 
+> [!WARNING]
+> Do NOT share this API Key with other people, this token should ONLY be used for generating packages.
+
 > [!NOTE]
 > nuget.org is public.
 > People doesn't need an invitation or an authentication token in order to read packages from nuget.org.
@@ -56,6 +59,19 @@ In order to push new packages and package versions, you need to create a Persona
 > In order for people to get access to your NuGet packages, you need to invite them to your repository (read permissions is sufficient). They will then get an invitation to join the repository and after use their own Personal Access Token with read:packages permissions for accessing packages in your organization.
 
 ### Using Azure DevOps
+
+In order to use Azure DevOps you need an Azure DevOps account. You can create an account by visiting [https://azure.microsoft.com/en-us/products/devops](https://azure.microsoft.com/en-us/products/devops).
+
+On Azure DevOps you can create multiple NuGet feeds under your organization and/or under a repository. You can create an empty repository for each set of packages you want to provide to other people. If you create a public repository (like [https://dev.azure.com/freddydk/apps](https://dev.azure.com/freddydk/apps)) then your artifact feeds will also be public.
+
+In order to push new packages and package versions, you need to create a Personal Access Token (classic) with Packaging Read&Write permissions. Visit [https://dev.azure.com/freddydk/_usersSettings/tokens](https://dev.azure.com/freddydk/_usersSettings/tokens) to create a personal access token.
+
+> [!WARNING]
+> Do NOT share this token with other people, this token should ONLY be used for generating packages.
+
+> [!NOTE]
+> Artifacts under Azure DevOps follows the permissions of the owning repository. If the repository is public, then users will not need an access token to query them.
+> If the owning repository is private you need to give people permissions and they will have to create their own Personal Access Token to get access.
 
 ## Running the tool
 
