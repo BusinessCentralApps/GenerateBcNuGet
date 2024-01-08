@@ -36,8 +36,11 @@ $runtimeAppFiles, $countrySpecificRuntimeAppFiles = GenerateRuntimeAppFiles -con
 # For every app create and push nuGet package (unless the exact version already exists)
 foreach($appFile in $apps) {
     $appName = [System.IO.Path]::GetFileName($appFile)
-    $runtimeDependencyPackageId = $runtimeDependencyPackageIds."$appName"    
-    $package = Get-BcNuGetPackage -nuGetServerUrl $nuGetServerUrl -nuGetToken $nuGetToken -packageName $runtimeDependencyPackageId -version $artifactVersion -select Exact
+    $runtimeDependencyPackageId = $runtimeDependencyPackageIds."$appName"
+    $bcContainerHelperConfig.TrustedNuGetFeeds = @( 
+        [PSCustomObject]@{ "url" = $nuGetServerUrl;  "token" = $nuGetToken; "Patterns" = @($runtimeDependencyPackageId) }
+    )
+    $package = Get-BcNuGetPackage -packageName $runtimeDependencyPackageId -version $artifactVersion -select Exact
     if (-not $package) {
         $runtimePackage = New-BcNuGetPackage -appfile $runtimeAppFiles."$appName" -countrySpecificAppFiles $countrySpecificRuntimeAppFiles."$appName" -packageId $runtimeDependencyPackageId -packageVersion $artifactVersion -applicationDependency "[$artifactVersion,$incompatibleArtifactVersion)" -githubRepository $githubRepository
         Push-BcNuGetPackage -nuGetServerUrl $nuGetServerUrl -nuGetToken $nuGetToken -bcNuGetPackage $runtimePackage

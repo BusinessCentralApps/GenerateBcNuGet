@@ -1,4 +1,4 @@
-$bcContainerHelperVersion = 'https://github.com/freddydk/navcontainerhelper/archive/refs/heads/nuget.zip'
+$bcContainerHelperVersion = 'https://bccontainerhelper.blob.core.windows.net/public/preview.zip'
 
 $tempName = Join-Path ([System.IO.Path]::GetTempPath()) ([Guid]::NewGuid().ToString())
 Write-Host "Downloading BcContainerHelper developer version from $bcContainerHelperVersion"
@@ -44,7 +44,10 @@ function GetRuntimeDependencyPackageIds {
         $appName = [System.IO.Path]::GetFileName($appFile)
         $appJson = Get-AppJsonFromAppFile -appFile $appFile
         # Test whether a NuGet package exists for this app?
-        $package = Get-BcNuGetPackage -nuGetServerUrl $nuGetServerUrl -nuGetToken $nuGetToken -packageName "runtime.$($appJson.id)" -version $appJson.version -select Exact
+        $bcContainerHelperConfig.TrustedNuGetFeeds = @( 
+            [PSCustomObject]@{ "url" = $nuGetServerUrl;  "token" = $nuGetToken; "Patterns" = @("*.runtime.$($appJson.id)") }
+        )
+        $package = Get-BcNuGetPackage -packageName "runtime.$($appJson.id)" -version $appJson.version -select Exact
         if (-not $package) {
             # If just one of the apps doesn't exist as a nuGet package, we need to create a new indirect nuGet package and build all runtime versions of the nuGet
             $package = Join-Path ([System.IO.Path]::GetTempPath()) ([GUID]::NewGuid().ToString())
@@ -154,8 +157,11 @@ function GetArtifactVersionsNeeded {
     foreach($appFile in $apps) {
         $appName = [System.IO.Path]::GetFileName($appFile)
         foreach($artifactVersion in $allArtifactVersions) {
-            $runtimeDependencyPackageId = $runtimeDependencyPackageIds."$appName"    
-            $package = Get-BcNuGetPackage -nuGetServerUrl $nuGetServerUrl -nuGetToken $nuGetToken -packageName $runtimeDependencyPackageId -version "$artifactVersion" -select Exact
+            $runtimeDependencyPackageId = $runtimeDependencyPackageIds."$appName"
+            $bcContainerHelperConfig.TrustedNuGetFeeds = @( 
+                [PSCustomObject]@{ "url" = $nuGetServerUrl;  "token" = $nuGetToken; "Patterns" = @($runtimeDependencyPackageId) }
+            )
+            $package = Get-BcNuGetPackage -packageName $runtimeDependencyPackageId -version "$artifactVersion" -select Exact
             if ($package) {
                 break
             }
