@@ -43,11 +43,11 @@ function GetRuntimeDependencyPackageIds {
         $appName = [System.IO.Path]::GetFileName($appFile)
         $appJson = Get-AppJsonFromAppFile -appFile $appFile
         # Test whether a NuGet package exists for this app?
-        $package = Get-BcNuGetPackage -nuGetServerUrl $nuGetServerUrl -nuGetToken $nuGetToken -packageName $appJson.id -version $appJson.version -select Exact
+        $package = Get-BcNuGetPackage -nuGetServerUrl $nuGetServerUrl -nuGetToken $nuGetToken -packageName "runtime.$($appJson.id)" -version $appJson.version -select Exact
         if (-not $package) {
             # If just one of the apps doesn't exist as a nuGet package, we need to create a new indirect nuGet package and build all runtime versions of the nuGet
             $package = Join-Path ([System.IO.Path]::GetTempPath()) ([GUID]::NewGuid().ToString())
-            New-BcNuGetPackage -appfile $appFile -isIndirectPackage -runtimeDependencyId '{publisher}.{name}.runtime-{version}' -destinationFolder $package | Out-Null
+            New-BcNuGetPackage -appfile $appFile -isIndirectPackage -packageId "{publisher}.{name}.runtime.{id}" -runtimeDependencyId '{publisher}.{name}.runtime-{version}' -destinationFolder $package | Out-Null
             $newPackage = $true
         }
         $runTimeDependencyPackageId = GetRuntimeDependencyPackageId -package $package
