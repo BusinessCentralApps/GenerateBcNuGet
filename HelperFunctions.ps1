@@ -18,8 +18,9 @@ function GetRuntimeDependencyPackageId {
     $nuspecFile = Join-Path $package 'manifest.nuspec'
     $nuspec = [xml](Get-Content -Path $nuspecFile -Encoding UTF8)
     $packageId = $nuspec.package.metadata.id
-    if ($packageId -match "^(.*).$($appJson.id)`$") {
-        $publisherAndName = $Matches[1]
+    if ($packageId -match "^([^.]+)\.([^.]+)\..*$($appJson.id)`$") {
+        $publisherAndName = "$($Matches[1]).$($Matches[2])"
+        Write-Host "Publisher is $($Matches[1]) and name is $($Matches[2])"
     }
     else {
         throw "Cannot determine publisher and name from the $packageId"
