@@ -38,7 +38,7 @@ foreach($appFile in $apps) {
     $appName = [System.IO.Path]::GetFileName($appFile)
     $runtimeDependencyPackageId = $runtimeDependencyPackageIds."$appName"
     $bcContainerHelperConfig.TrustedNuGetFeeds = @( 
-        [PSCustomObject]@{ "url" = $nuGetServerUrl;  "token" = $nuGetToken; "Patterns" = @($runtimeDependencyPackageId); "Fingerprints" = @('*') }
+        [PSCustomObject]@{ "url" = $nuGetServerUrl;  "token" = $nuGetToken; "Patterns" = @($runtimeDependencyPackageId) }
     )
     $package = Get-BcNuGetPackage -packageName $runtimeDependencyPackageId -version $artifactVersion -select Exact
     if (-not $package) {

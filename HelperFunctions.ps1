@@ -45,7 +45,7 @@ function GetRuntimeDependencyPackageIds {
         $appJson = Get-AppJsonFromAppFile -appFile $appFile
         # Test whether a NuGet package exists for this app?
         $bcContainerHelperConfig.TrustedNuGetFeeds = @( 
-            [PSCustomObject]@{ "url" = $nuGetServerUrl;  "token" = $nuGetToken; "Patterns" = @("*.runtime.$($appJson.id)"); "Fingerprints" = @('*') }
+            [PSCustomObject]@{ "url" = $nuGetServerUrl;  "token" = $nuGetToken; "Patterns" = @("*.runtime.$($appJson.id)") }
         )
         $package = Get-BcNuGetPackage -packageName "runtime.$($appJson.id)" -version $appJson.version -select Exact
         if (-not $package) {
@@ -159,7 +159,7 @@ function GetArtifactVersionsNeeded {
         foreach($artifactVersion in $allArtifactVersions) {
             $runtimeDependencyPackageId = $runtimeDependencyPackageIds."$appName"
             $bcContainerHelperConfig.TrustedNuGetFeeds = @( 
-                [PSCustomObject]@{ "url" = $nuGetServerUrl;  "token" = $nuGetToken; "Patterns" = @($runtimeDependencyPackageId); "Fingerprints" = @('*') }
+                [PSCustomObject]@{ "url" = $nuGetServerUrl;  "token" = $nuGetToken; "Patterns" = @($runtimeDependencyPackageId) }
             )
             $package = Get-BcNuGetPackage -packageName $runtimeDependencyPackageId -version "$artifactVersion" -select Exact
             if ($package) {
