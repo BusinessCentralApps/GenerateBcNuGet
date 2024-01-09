@@ -16,6 +16,16 @@ on:
         description: Comma separated list of apps (leave empty to use APPS secret)
         required: false
         default: ''
+      run-name:
+        description: Name of the run (leave empty to use the default name)
+        required: false
+        default: ''
+
+run-name: ${{ github.event.inputs.run-name != '' && github.event.inputs.run-name || 'Generate NuGet Packages' }}
+
+concurrency:
+  group: ${{ github.event.inputs.run-name != '' && github.event.inputs.run-name || 'Generate NuGet Packages' }}
+  cancel-in-progress: false
 
 jobs:
   GenerateNuGetPackages:

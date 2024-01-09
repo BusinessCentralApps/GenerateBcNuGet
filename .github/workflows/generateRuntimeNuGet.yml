@@ -40,6 +40,16 @@ on:
         description: License File URL to use for versions before 22.0 (leave empty to use LICENSEFILEURL secret)
         required: false
         default: ''
+      run-name:
+        description: Name of the run (leave empty to use the default name)
+        required: false
+        default: ''
+
+run-name: ${{ github.event.inputs.run-name != '' && github.event.inputs.run-name || 'Generate Runtime NuGet Packages' }}
+
+concurrency:
+  group: ${{ github.event.inputs.run-name != '' && github.event.inputs.run-name || 'Generate Runtime NuGet Packages' }}
+  cancel-in-progress: false
 
 jobs:
   DetermineArtifacts:
@@ -79,6 +89,7 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.DetermineArtifacts.outputs.artifactVersions) }}
       fail-fast: false
+      max-parallel: 12
     name: Runtime ${{ matrix.artifactVersion }}
     steps:
       - name: Checkout
