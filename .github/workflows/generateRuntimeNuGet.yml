@@ -40,6 +40,12 @@ on:
         description: License File URL to use for versions before 22.0 (leave empty to use LICENSEFILEURL secret)
         required: false
         default: ''
+      run-name:
+        description: Name of the run (leave empty to use the default name)
+        required: false
+        default: ''
+
+run-name: ${{ github.event.inputs.run-name != '' && github.event.inputs.run-name || 'Generate Runtime NuGet Packages' }}
 
 jobs:
   DetermineArtifacts:
