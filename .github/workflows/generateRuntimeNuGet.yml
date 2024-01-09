@@ -89,6 +89,7 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.DetermineArtifacts.outputs.artifactVersions) }}
       fail-fast: false
+      max-parallel: 12
     name: Runtime ${{ matrix.artifactVersion }}
     steps:
       - name: Checkout
