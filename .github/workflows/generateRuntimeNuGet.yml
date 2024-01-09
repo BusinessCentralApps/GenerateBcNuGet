@@ -47,6 +47,10 @@ on:
 
 run-name: ${{ github.event.inputs.run-name != '' && github.event.inputs.run-name || 'Generate Runtime NuGet Packages' }}
 
+concurrency:
+  group: ${{ github.event.inputs.run-name != '' && github.event.inputs.run-name || 'Generate Runtime NuGet Packages' }}
+  cancel-in-progress: false
+
 jobs:
   DetermineArtifacts:
     name: Determine Business Central Artifacts
