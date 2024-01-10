@@ -194,7 +194,7 @@ For the parameters, where the column masked is set yes, these values will not be
 | `artifactVersion` | | Which Business Central artifact versions to build runtime packages for. You can specify a comma-separated list of version numbers to use or a minimum-version followed by a - to indicate that you want all available Business Central versions after this version.  | all supported by app |
 | `artifactType` | | onprem or sandbox | sandbox |
 | `licenseFileUrl` | yes | When generating runtime packages for apps in non-public number ranges versions prior to 22.0, we need a license file for Business Central. This should be a direct download url to that license file and it will ONLY be used for versions prior to 22.0 | |
-| `run`-name | | The name of the workflow run in the GitHub UI. | name of workflow |
+| `run-name` | | The name of the workflow run in the GitHub UI. | name of workflow |
 
 These parameters can be specified directly in GitHub UI when invoking `Run workflow` - or they can be specified on the command-line when using `gh workflow run`.
 
@@ -230,6 +230,9 @@ $nuGetToken = '<my Personal Access Token>'
 gh workflow run --repo freddydk/GenerateBcNuGet "Generate Runtime NuGet Packages" -f apps=$apps -f nuGetServerUrl=$nuGetServerUrl -f nuGetToken=$nuGetToken -f country=w1
 ```
 
+> [!NOTE]
+> Re-running the same line again, will generate runtime packages for new versions of Business Central.
+
 ### Example 3
  
 How I created full packages in [https://dev.azure.com/freddydk/apps/_artifacts/feed/Apps](https://dev.azure.com/freddydk/apps/_artifacts/feed/Apps)
@@ -251,6 +254,9 @@ $nuGetServerUrl = 'https://pkgs.dev.azure.com/freddydk/apps/_packaging/RuntimePa
 $nuGetToken = '<my Personal Access Token>'
 gh workflow run --repo freddydk/GenerateBcNuGet "Generate Runtime NuGet Packages" -f apps=$apps -f nuGetServerUrl=$nuGetServerUrl -f nuGetToken=$nuGetToken -f country=w1
 ```
+
+> [!NOTE]
+> Re-running the same line again, will generate runtime packages for new versions of Business Central.
 
 ### Example 5
  
