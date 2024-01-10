@@ -9,7 +9,103 @@ BcNuGet packages comes in two flavors:
 1. Including the full .app file
 2. Including runtime packages, compiled for supported versions of Business Central
 
-It is NOT supported to put both these types of BcNuGet packages on the same NuGet Server (it also wouldn't make much sense I think...)
+You shouldn't place both these types of BcNuGet packages on the same NuGet Server. If people have access to the full package, they shouldn't need the runtime packages.
+
+## Package Format
+
+After healthy discussions on various media, the following format was the one agreed upon.
+
+### Naming
+
+Naming of the packages almost follows NuGet standards. We use `publisher.name.appid` - this allows people to use registered prefixes on nuget.org and increases visibility in the UI. For runtime package BcNuGet packages we use `publisher.name.runtime.appid` for two reasons: human distinction and the ability to host both packages in the same GitHub organization with separate security models.
+
+### Content
+
+One BcNuGet package is one Business Central app,
+
+### Dependencies
+
+Full dependency list is included in the BcNuGet packages - using `publisher.name.appid` and `version`
+
+### Search/Dependency resolution
+
+We only use the `appid` and `version` to resolve dependencies. This is what Business Central does and this allows partners to do publisher name or name changes seamlessly.
+
+### Runtime packages
+
+Runtime packages are a bit special because we need to provide a binary version of the .app for every minor version of Business Central the .app supports. Including all these binary files in the BcNuGet package would be possible, but it would require us to modify the BcNuGet package whenever a new version of Business Central has shipped.
+
+Therefore, the runtime version of a BcNuGet package does NOT contain the actual .app. Instead, it is an indirect (empty) package, containing an extra dependency to another BcNuGet package named `publisher.name.runtime-version` and the version number of this package is the Microsoft Application the containing runtime package was built for. Also, the Microsoft.Application dependency in the package containing the runtime package file has a Microsoft.Application dependency on f.ex. `[23.2,23.3)` which allows us to find the right package for any Business Central version by looking at dependencies.
+
+### Example of a BcNuGet package
+
+This package contains version 5.1.23.0 of my BingMaps.PTE app. Note the Publisher and App names have been normalized as NuGet recommends. We do however keep dashes due to the appid part.
+
+```
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>FreddyKristiansen.BingMapsPTE.165d73c1-39a4-4fb6-85a5-925edc1684fb</id>
+        <version>5.1.23.0</version>
+        <title>BingMaps.PTE</title>
+        <description>BingMaps Integration App with geocode functionality and map control</description>
+        <authors>Freddy Kristiansen</authors>
+        <dependencies>
+            <dependency id="Microsoft.Application" version="21.5.53619.57262" />
+            <dependency id="Microsoft.Platform" version="21.0.53597.57239" />
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="Freddy Kristiansen_BingMaps.PTE_5.1.23.0.app" target="Freddy Kristiansen_BingMaps.PTE_5.1.23.0.app" />
+    </files>
+</package>
+```
+
+### Example of a BcNuGet runtime package
+
+This package contains version 5.1.23.0 of my BingMaps.PTE app as a runtime package. Only differences to the above full app package is `.runtime` in the package id, a dependency to a BcNuGet package containing the actual binary and no actual files in this package. This package is called the indirect package.
+
+```
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>FreddyKristiansen.BingMapsPTE.runtime.165d73c1-39a4-4fb6-85a5-925edc1684fb</id>
+        <version>5.1.23.0</version>
+        <title>BingMaps.PTE</title>
+        <description>BingMaps Integration App with geocode functionality and map control</description>
+        <authors>Freddy Kristiansen</authors>
+        <dependencies>
+            <dependency id="Microsoft.Application" version="21.5.53619.57262" />
+            <dependency id="Microsoft.Platform" version="21.0.53597.57239" />
+            <dependency id="FreddyKristiansen.BingMapsPTE.runtime-5-1-23-0" version="1.0.0.0" />
+        </dependencies>
+    </metadata>
+</package>
+```
+
+### Example of a BcNuGet compiled runtime package
+
+This package contains version 5.1.23.0 of my BingMaps.PTE app compiled with Business Central version 23.2.14098.14562 (first BC version in 23.2 minor) and is compatible with all 23.2 versions (but not 23.3). When 23.3 ships, we add another version to the BcNuGet compiled runtime package.
+
+```
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>FreddyKristiansen.BingMapsPTE.runtime-5-1-23-0</id>
+        <version>23.2.14098.14562</version>
+        <title>BingMaps.PTE</title>
+        <description>BingMaps Integration App with geocode functionality and map control</description>
+        <authors>Freddy Kristiansen</authors>
+        <dependencies>
+            <dependency id="Microsoft.Application" version="[23.2.14098.14562,23.3)" />
+            <dependency id="Microsoft.Platform" version="21.0.53597.57239" />
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="Freddy Kristiansen_BingMaps.PTE_5.1.23.0.runtime-23.2.14098.14562-w1.app" target="Freddy Kristiansen_BingMaps.PTE_5.1.23.0.runtime-23.2.14098.14562-w1.app" />
+    </files>
+</package>
+```
 
 ## Prerequisites
 
@@ -74,6 +170,8 @@ In order to push new packages and package versions, you need to create a Persona
 > Artifacts under Azure DevOps follows the permissions of the owning repository. If the repository is public, then users will not need an access token to query them.
 > If the owning repository is private you need to give people permissions and they will have to create their own Personal Access Token to get access.
 
+
+
 ## Running the tool
 
 In order to run this tool, you need to create a fork in your own organization or in your personal GitHub account and under actions, enable workflows in the fork.
@@ -84,7 +182,13 @@ Running the **Generate Runtime NuGet Packages** workflow will generate BcNuGet p
 
 Mandatory fields are **nuGetServerUrl**, **nuGetToken** and **apps**. Parameters can be specified in the UI or created as secrets and variables, but they can also be provided as parameters when invoking the workflow from code.
 
-## Example 1
+
+
+
+
+
+
+### Example 1
 
 How I created full packages in [https://github.com/FreddyKristiansen-Apps/BingMapsPTE](https://github.com/FreddyKristiansen-Apps/BingMapsPTE)
 
@@ -95,7 +199,7 @@ $nuGetToken = '<my Personal Access Token>'
 gh workflow run --repo freddydk/GenerateBcNuGet "Generate NuGet Packages" -f apps=$apps -f nuGetServerUrl=$nuGetServerUrl -f nuGetToken=$nuGetToken
 ```
 
-## Example 2
+### Example 2
  
 How I created runtime packages in [https://github.com/FreddyKristiansen-RuntimePackages/BingMapsPTE](https://github.com/FreddyKristiansen-RuntimePackages/BingMapsPTE)
 
@@ -106,7 +210,7 @@ $nuGetToken = '<my Personal Access Token>'
 gh workflow run --repo freddydk/GenerateBcNuGet "Generate Runtime NuGet Packages" -f apps=$apps -f nuGetServerUrl=$nuGetServerUrl -f nuGetToken=$nuGetToken -f country=w1
 ```
 
-## Example 3
+### Example 3
  
 How I created full packages in [https://dev.azure.com/freddydk/apps/_artifacts/feed/Apps](https://dev.azure.com/freddydk/apps/_artifacts/feed/Apps)
 
@@ -117,7 +221,7 @@ $nuGetToken = '<my Personal Access Token>'
 gh workflow run --repo freddydk/GenerateBcNuGet "Generate NuGet Packages" -f apps=$apps -f nuGetServerUrl=$nuGetServerUrl -f nuGetToken=$nuGetToken
 ```
 
-## Example 4
+### Example 4
  
 How I created runtime packages in [https://dev.azure.com/freddydk/apps/_artifacts/feed/RuntimePackages](https://dev.azure.com/freddydk/apps/_artifacts/feed/RuntimePackages)
 
@@ -128,7 +232,7 @@ $nuGetToken = '<my Personal Access Token>'
 gh workflow run --repo freddydk/GenerateBcNuGet "Generate Runtime NuGet Packages" -f apps=$apps -f nuGetServerUrl=$nuGetServerUrl -f nuGetToken=$nuGetToken -f country=w1
 ```
 
-## Example 5
+### Example 5
  
 In order to publish runtime packages on nuget.org, you can use this
 
