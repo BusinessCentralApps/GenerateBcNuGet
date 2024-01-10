@@ -61,9 +61,9 @@ This package contains version 5.1.23.0 of my BingMaps.PTE app. Note the Publishe
 </package>
 ```
 
-### Example of a BcNuGet runtime package
+### Example of a BcNuGet indirect runtime package
 
-This package contains version 5.1.23.0 of my BingMaps.PTE app as a runtime package. Only differences to the above full app package is `.runtime` in the package id, a dependency to a BcNuGet package containing the actual binary and no actual files in this package. This package is called the indirect package.
+This package contains version 5.1.23.0 of my BingMaps.PTE app as a runtime package. Only differences to the above full app package is `.runtime` in the package id, a dependency to a BcNuGet package containing the actual binary and no actual files in this package. In this, this package is called the indirect package and and package containing the actual runtime binary is called the BcNuGet compiled runtime package.
 
 ```
 <?xml version="1.0" encoding="utf-8"?>
@@ -106,6 +106,13 @@ This package contains version 5.1.23.0 of my BingMaps.PTE app compiled with Busi
     </files>
 </package>
 ```
+
+> [!NOTE]
+> Business Central runtime packages are only really guaranteed to work if they are compiled for the same minor version AND the same localization they are built for. Theoretically, there can be a difference between a US and a DK runtime package.
+>
+> Therefore, a compiled runtime package can contain multiple country versions of the same runtime package in subfolders with the name of the localization. After downloading a compiled runtime package, if a folder exists with the name of the needed localization - this is the package used - else the package in the root is used. The root does not have to be w1 - it is just always the default.
+>
+> When (sometime in the future) Business Central doesn't have localizations anymore - this problem does away and we have a clean model.
 
 ## Prerequisites
 
@@ -170,7 +177,26 @@ In order to push new packages and package versions, you need to create a Persona
 > Artifacts under Azure DevOps follows the permissions of the owning repository. If the repository is public, then users will not need an access token to query them.
 > If the owning repository is private you need to give people permissions and they will have to create their own Personal Access Token to get access.
 
+## Parameters
 
+The Generate NuGet Packages workflow has a subset of the parameters from the Generate Runtime NuGet Packages workflow (nuGetServerUrl, nuGetToken, apps and run-name) and the parameters have the same meaning.
+
+For the parameters, where the column masked is set yes, these values will not be visible in the workflow output.
+
+| Name | Masked | Description | Default |
+! :-- | :-- | :-- | :-- |
+| nuGetServerUrl | | | |
+| nuGetToken | yes | | |
+| apps | yes | | |
+| dependencies | yes | | |
+| country | | | w1 |
+| additionalCountries | | | |
+| artifactVersion | | | application dependency from app |
+| artifactType | | onprem or sandbox | sandbox |
+| licenseFileUrl | yes | When generating runtime packages for apps in non-public number ranges versions prior to 22.0, we need a license file for Business Central. This should be a direct download url to that license file and it will ONLY be used for versions prior to 22.0 | |
+| run-name | | | name of workflow |
+
+The default 
 
 ## Running the tool
 
