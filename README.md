@@ -184,19 +184,19 @@ The Generate NuGet Packages workflow has a subset of the parameters from the Gen
 For the parameters, where the column masked is set yes, these values will not be visible in the workflow output.
 
 | Name | Masked | Description | Default |
-! :-- | :-- | :-- | :-- |
-| nuGetServerUrl | | | |
-| nuGetToken | yes | | |
-| apps | yes | | |
-| dependencies | yes | | |
-| country | | | w1 |
-| additionalCountries | | | |
-| artifactVersion | | | application dependency from app |
-| artifactType | | onprem or sandbox | sandbox |
-| licenseFileUrl | yes | When generating runtime packages for apps in non-public number ranges versions prior to 22.0, we need a license file for Business Central. This should be a direct download url to that license file and it will ONLY be used for versions prior to 22.0 | |
-| run-name | | | name of workflow |
+| :-- | :-- | :-- | :-- |
+| `nuGetServerUrl` | | The url to your nuGet feed (based on type). Note that for GitHub, this should be the repository carrying the security model for the package. | |
+| `nuGetToken` | yes | Auth Token with permissions to create packages and versions on the nuGet server. | |
+| `apps` | yes | A comma-separated list of urls where the tool can download .zip files or .app files to publish as BcNuGet packages. All apps in this list will be published as BcNuGet packages. | |
+| `dependencies` | yes | A comma-separated list of urls where the tool can download .zip files or .app files, which are needed dependencies when creating runtime packages. These apps will only be used during BcNuGet package generation. No BcNuGet package will be created from these. | |
+| `country` | | Localization to use for the root runtime package. See [this](#example-of-a-bcnuget-compiled-runtime-package). | w1 |
+| `additionalCountries` | | A comma-separated list of localizations for which a special compiled runtime version will be created and added in a subfolder. | |
+| `artifactVersion` | | Which Business Central artifact versions to build runtime packages for. You can specify a comma-separated list of version numbers to use or a minimum-version followed by a - to indicate that you want all available Business Central versions after this version.  | all supported by app |
+| `artifactType` | | onprem or sandbox | sandbox |
+| `licenseFileUrl` | yes | When generating runtime packages for apps in non-public number ranges versions prior to 22.0, we need a license file for Business Central. This should be a direct download url to that license file and it will ONLY be used for versions prior to 22.0 | |
+| `run`-name | | The name of the workflow run in the GitHub UI. | name of workflow |
 
-The default 
+These parameters can be specified directly in GitHub UI when invoking `Run workflow` - or they can be specified on the command-line when using `gh workflow run`.
 
 ## Running the tool
 
@@ -206,13 +206,7 @@ Running the **Generate NuGet Packages** workflow will generate BcNuGet packages 
 
 Running the **Generate Runtime NuGet Packages** workflow will generate BcNuGet packages with runtime packages of your apps.
 
-Mandatory fields are **nuGetServerUrl**, **nuGetToken** and **apps**. Parameters can be specified in the UI or created as secrets and variables, but they can also be provided as parameters when invoking the workflow from code.
-
-
-
-
-
-
+Mandatory fields are **nuGetServerUrl**, **nuGetToken** and **apps**. Parameters can be specified in the UI or created as secrets and variables, but they will most likely be provided as parameters when invoking the workflow from code using `gh workflow run`.
 
 ### Example 1
 
