@@ -13,9 +13,9 @@ on:
         required: false
         default: ''
       artifactVersion:
-        description: Version to start from (default is 16.0.0.0-)
-        required: false
-        default: '16.0.0.0-'
+        description: Business Central Version to generate nuget packages for
+        required: true
+        default: ''
       run-name:
         description: Name of the run (leave empty to use the default name)
         required: false
@@ -31,6 +31,10 @@ jobs:
   GenerateMSAppsNuGetPackages:
     name: Generate Microsoft Apps NuGet Packages
     runs-on: [ ubuntu-latest ]
+    strategy:
+      matrix:
+        country: [ "at", "au", "be", "ca", "ch", "cz", "de", "dk", "es", "fi", "fr", "gb", "in", "is", "it", "mx", "nl", "no", "nz", "ru", "se", "us", "w1" ]
+      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -40,13 +44,11 @@ jobs:
         run: |
           . (Join-Path $env:GITHUB_WORKSPACE "MaskInput.ps1")
 
-      - name: Determine Artifacts
-        id: determineArtifacts
+      - name: Generate MS Apps
         shell: pwsh
         env:
-          country: 'w1'
-          artifactVersion: ${{ github.event.inputs.artifactVersion != '' && github.event.inputs.artifactVersion || vars.ARTIFACTVERSION }}
           artifactType: 'sandbox'
-          justGetArtifactVersions: 'true'
+          artifactVersion: ${{ github.event.inputs.artifactVersion }}
+          country: ${{ matrix.country }}
         run: |
-          . (Join-Path $env:GITHUB_WORKSPACE "DetermineArtifacts.ps1")
+          . (Join-Path $env:GITHUB_WORKSPACE "GenerateMSApps.ps1")

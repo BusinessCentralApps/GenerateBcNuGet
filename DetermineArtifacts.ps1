@@ -14,7 +14,6 @@ if ($country -eq '') { $country = 'w1' }
 $artifactType = $env:artifactType
 if ($artifactType -eq '') { $artifactType = 'sandbox' }
 $artifactVersion = "$env:artifactVersion".Trim()
-$justGetArtifactVersions = $env:justGetArtifactVersions -eq 'true'
 
 # Determine runtime dependency package ids for all apps and whether any of the apps doesn't exist as a nuGet package
 $runtimeDependencyPackageIds, $newPackage = GetRuntimeDependencyPackageIds -apps $apps -nuGetServerUrl $nuGetServerUrl -nuGetToken $nuGetToken
@@ -28,10 +27,10 @@ if ($artifactVersion -eq '' -or $artifactVersion.EndsWith('-')) {
     Write-Host "Highest application dependency: $highestApplicationDependency"
 
     # Determine which artifacts are needed for any of the apps
-    $allArtifactVersions = @(GetArtifactVersionsSince -type $artifactType -country $country -version "$highestApplicationDependency" -includeLatest:$justGetArtifactVersions)
+    $allArtifactVersions = @(GetArtifactVersionsSince -type $artifactType -country $country -version "$highestApplicationDependency")
 
-    if ($newPackage -or $justGetArtifactVersions) {
-        # If a new package is to be created or we just want artifact versions, all artifacts are needed
+    if ($newPackage) {
+        # If a new package is to be created, all artifacts are needed
         $artifactVersions = $allArtifactVersions
     }
     else {
@@ -50,20 +49,13 @@ else {
     })
 }
 
-if ($justGetArtifactVersions) {
-    $artifactVersions = @($artifactVersions | ForEach-Object { @{ "artifactVersion" = "$_" } })
-}
-else {
-    $artifactVersions = @($artifactVersions | ForEach-Object { @{ "artifactVersion" = "$_"; "incompatibleArtifactVersion" = "$($_.Major).$($_.Minor+1)" } })
-}
+$artifactVersions = @($artifactVersions | ForEach-Object { @{ "artifactVersion" = "$_"; "incompatibleArtifactVersion" = "$($_.Major).$($_.Minor+1)" } })
 
 Write-Host "Artifact versions:"
 $artifactVersions | ForEach-Object { Write-Host "- $(ConvertTo-Json -InputObject $_ -Compress)" }
 Add-Content -Path $ENV:GITHUB_OUTPUT -Value "ArtifactVersions=$(ConvertTo-Json -InputObject @($artifactVersions) -Compress)" -Encoding UTF8
 Add-Content -Path $ENV:GITHUB_OUTPUT -Value "ArtifactVersionCount=$($artifactVersions.Count)" -Encoding UTF8
 
-if (!$justGetArtifactVersions) {
-    Write-Host "RuntimeDependencyPackageIds:"
-    $runtimeDependencyPackageIds.Keys | ForEach-Object { Write-Host "- $_ = $($runtimeDependencyPackageIds."$_")" }
-    Add-Content -Path $ENV:GITHUB_OUTPUT -Value "RuntimeDependencyPackageIds=$(ConvertTo-Json -InputObject $runtimeDependencyPackageIds -Compress)" -Encoding UTF8
-}
+Write-Host "RuntimeDependencyPackageIds:"
+$runtimeDependencyPackageIds.Keys | ForEach-Object { Write-Host "- $_ = $($runtimeDependencyPackageIds."$_")" }
+Add-Content -Path $ENV:GITHUB_OUTPUT -Value "RuntimeDependencyPackageIds=$(ConvertTo-Json -InputObject $runtimeDependencyPackageIds -Compress)" -Encoding UTF8
