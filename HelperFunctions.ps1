@@ -121,7 +121,8 @@ function GetArtifactVersionsSince {
     Param(
         [string] $type,
         [string] $country,
-        [string] $version
+        [string] $version,
+        [switch] $includeLatest
     )
     $artifactVersions = @()
     $applicationVersion = [System.Version]$version
@@ -129,6 +130,12 @@ function GetArtifactVersionsSince {
         $artifacturl = Get-BCArtifactUrl -type $type -country $country -version "$applicationVersion" -select Closest
         if ($artifacturl) {
             $artifactVersions += @([System.Version]($artifacturl.split('/')[4]))
+            if ($includeLatest) {
+                $latestArtifacturl = Get-BCArtifactUrl -type $type -country $country -version "$($applicationVersion.Major).$($applicationVersion.Minor).$([Int32]::MaxValue).$([Int32]::MaxValue)" -select Closest
+                if ($latestArtifacturl -ne $artifacturl) {
+                    $artifactVersions += @([System.Version]($latestArtifacturl.split('/')[4]))
+                }
+            }
             $applicationVersion = [System.Version]"$($applicationVersion.Major).$($applicationVersion.Minor+1).0.0"
         }
         elseif ($applicationVersion.Minor -eq 0) {

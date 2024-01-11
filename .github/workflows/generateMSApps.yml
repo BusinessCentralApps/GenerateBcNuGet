@@ -47,5 +47,6 @@ jobs:
           country: 'w1'
           artifactVersion: ${{ github.event.inputs.artifactVersion != '' && github.event.inputs.artifactVersion || vars.ARTIFACTVERSION }}
           artifactType: 'sandbox'
+          justGetArtifactVersions: 'true'
         run: |
           . (Join-Path $env:GITHUB_WORKSPACE "DetermineArtifacts.ps1")
