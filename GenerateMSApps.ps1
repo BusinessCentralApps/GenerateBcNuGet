@@ -18,7 +18,13 @@ else {
     $folders = Download-Artifacts -artifactUrl $artifactUrl -includePlatform
     $applicationsFolder = Join-Path $folders[0] "Applications.$country"
     $localApps = Test-Path $applicationsFolder
-    if (!$localApps) {
+    if ($localApps) {
+        Write-Host "Local apps exists for $country"
+    }
+    elseif ($country -ne 'w1')) {
+        throw "No local apps exists for $country"
+    }
+    else {
         $applicationsFolder = Join-Path $folders[1] "Applications"
     }
     if ($localApps -or $country -eq 'w1') {
