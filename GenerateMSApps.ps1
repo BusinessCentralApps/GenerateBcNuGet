@@ -69,6 +69,7 @@ else {
                         }
                         catch {
                             if ($_.Exception.Message -like '*Conflict - The feed already contains*') {
+                                Write-Host "Package already exists"
                                 break
                             }
                             Write-Host "Error pushing package: $($_.Exception.Message). Retry in 10 seconds"
