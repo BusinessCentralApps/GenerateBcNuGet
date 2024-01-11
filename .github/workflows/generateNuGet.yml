@@ -21,10 +21,10 @@ on:
         required: false
         default: ''
 
-run-name: ${{ github.event.inputs.run-name != '' && github.event.inputs.run-name || 'Generate NuGet Packages' }}
+run-name: ${{ github.event.inputs.run-name != '' && github.event.inputs.run-name || github.workflow }}
 
 concurrency:
-  group: ${{ github.event.inputs.run-name != '' && github.event.inputs.run-name || 'Generate NuGet Packages' }}
+  group: ${{ github.event.inputs.run-name != '' && github.event.inputs.run-name || github.workflow }}
   cancel-in-progress: false
 
 jobs:
