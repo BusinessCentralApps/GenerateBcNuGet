@@ -21,7 +21,7 @@ else {
     if ($localApps) {
         Write-Host "Local apps exists for $country"
     }
-    elseif ($country -ne 'w1')) {
+    elseif ($country -ne 'w1') {
         throw "No local apps exists for $country"
     }
     else {
