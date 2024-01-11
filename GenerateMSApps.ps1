@@ -45,10 +45,9 @@ else {
                         $packageId = "Microsoft.Platform"
                     }
                     $package = New-BcNuGetPackage -appfiles $appFileName -packageId $packageId -dependencyIdTemplate "{publisher}.{name}.{id}" -applicationDependencyId "Microsoft.Application" -platformDependencyId "Microsoft.Platform"
-                    Push-BcNuGetPackage -nuGetServerUrl $nuGetServerUrl -nuGetToken $nuGetToken -bcNuGetPackage $package
-                    Remove-Item $package -Force
                 }
                 else {
+                    $package = $null
                     $packageId = "{publisher}.{name}.$($country).{id}"
                     if ($_.Name -eq "Microsoft_Application.app" -or $_.Name -like "Microsoft_Application_*.app") {
                         $packageId = "Microsoft.Application.$Country"
@@ -58,9 +57,25 @@ else {
                     }
                     if ($packageId) {
                         $package = New-BcNuGetPackage -appfiles $appFileName -packageId $packageId -dependencyIdTemplate "{publisher}.{name}.$($country).{id}" -applicationDependencyId "Microsoft.Application.$country" -platformDependencyId "Microsoft.Platform"
-                        Push-BcNuGetPackage -nuGetServerUrl $nuGetServerUrl -nuGetToken $nuGetToken -bcNuGetPackage $package
-                        Remove-Item $package -Force
                     }
+                }
+                if ($package) {
+                    $cnt = 0
+                    while ($true) {
+                        try {
+                            $cnt++
+                            Push-BcNuGetPackage -nuGetServerUrl $nuGetServerUrl -nuGetToken $nuGetToken -bcNuGetPackage $package
+                            break
+                        }
+                        catch {
+                            if ($_.Exception.Message -like '*Conflict - The feed already contains*') {
+                                break
+                            }
+                            Write-Host "Error pushing package: $($_.Exception.Message). Retry in 10 seconds"
+                            Start-Sleep -Seconds 10
+                        }
+                    }
+                    Remove-Item $package -Force
                 }
             }
         }
