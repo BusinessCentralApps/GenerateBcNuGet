@@ -28,8 +28,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  GenerateNuGetPackages:
-    name: Generate NuGet Packages
+  GenerateMSAppsNuGetPackages:
+    name: Generate Microsoft Apps NuGet Packages
     runs-on: [ ubuntu-latest ]
     steps:
       - name: Checkout
