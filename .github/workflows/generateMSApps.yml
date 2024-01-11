@@ -1,4 +1,4 @@
-name: Generate NuGet Packages
+name: Generate Microsoft Apps NuGet Packages
 
 # Controls when the workflow will run
 on:
@@ -46,5 +46,6 @@ jobs:
         env:
           country: 'w1'
           artifactVersion: ${{ github.event.inputs.artifactVersion != '' && github.event.inputs.artifactVersion || vars.ARTIFACTVERSION }}
+          artifactType: 'sandbox'
         run: |
           . (Join-Path $env:GITHUB_WORKSPACE "DetermineArtifacts.ps1")
