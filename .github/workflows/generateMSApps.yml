@@ -1,0 +1,50 @@
+name: Generate NuGet Packages
+
+# Controls when the workflow will run
+on:
+  workflow_dispatch:
+    inputs:
+      nuGetServerUrl:
+        description: NuGet server URL (leave empty to use NUGETSERVERURL variable)
+        required: false
+        default: ''
+      nuGetToken:
+        description: NuGet auth token (leave empty to use NUGETTOKEN secret)
+        required: false
+        default: ''
+      artifactVersion:
+        description: Version to start from (default is 16.0.0.0-)
+        required: false
+        default: '16.0.0.0-'
+      run-name:
+        description: Name of the run (leave empty to use the default name)
+        required: false
+        default: ''
+
+run-name: ${{ github.event.inputs.run-name != '' && github.event.inputs.run-name || 'Generate NuGet Packages' }}
+
+concurrency:
+  group: ${{ github.event.inputs.run-name != '' && github.event.inputs.run-name || 'Generate NuGet Packages' }}
+  cancel-in-progress: false
+
+jobs:
+  GenerateNuGetPackages:
+    name: Generate NuGet Packages
+    runs-on: [ ubuntu-latest ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Mask input
+        shell: pwsh
+        run: |
+          . (Join-Path $env:GITHUB_WORKSPACE "MaskInput.ps1")
+
+      - name: Determine Artifacts
+        id: determineArtifacts
+        shell: pwsh
+        env:
+          country: 'w1'
+          artifactVersion: ${{ github.event.inputs.artifactVersion != '' && github.event.inputs.artifactVersion || vars.ARTIFACTVERSION }}
+        run: |
+          . (Join-Path $env:GITHUB_WORKSPACE "DetermineArtifacts.ps1")
