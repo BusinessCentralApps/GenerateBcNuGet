@@ -7,4 +7,4 @@ $artifactType = $env:artifactType
 $artifactVersion = $env:artifactVersion
 
 $artifactUrl = Get-BCArtifactUrl -type $artifactType -country $country -version $artifactVersion
-$artifacts = Download-Artifacts -artifactUrl -includePlatform
+$artifacts = Download-Artifacts -artifactUrl $artifactUrl -includePlatform
