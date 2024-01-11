@@ -72,6 +72,7 @@ else {
                                 Write-Host "Package already exists"
                                 break
                             }
+                            if ($cnt -eq 5) { throw $_ }
                             Write-Host "Error pushing package: $($_.Exception.Message). Retry in 10 seconds"
                             Start-Sleep -Seconds 10
                         }
