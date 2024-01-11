@@ -33,7 +33,7 @@ jobs:
     runs-on: [ ubuntu-latest ]
     strategy:
       matrix:
-        country: [ "AT", "AU", "BE", "CA", "CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IN", "IS", "IT", "MX", "NL", "NO", "NZ", "RU", "SE", "US", "W1" ]
+        country: [ "AT", "AU", "BE", "CA", "CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IN", "IS", "IT", "MX", "NL", "NO", "NZ", "SE", "US", "W1" ]
       fail-fast: false
     steps:
       - name: Checkout
