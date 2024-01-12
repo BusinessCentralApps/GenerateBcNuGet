@@ -31,7 +31,7 @@ else {
     if ($localApps -or $country -eq 'w1') {
         $alreadyAdded = @()
         @(Get-Item (Join-Path $folders[1] "ModernDev\program files\Microsoft Dynamics NAV\*\AL Development Environment\System.app"))+@(Get-ChildItem -Path (Join-Path $folders[0] "Extensions") -Filter '*.app' -Recurse)+@(Get-ChildItem -Path $applicationsFolder -Filter '*.app' -Recurse) | ForEach-Object {
-            $appFileName = Get-AppFile -appFile $_.FullName -symbolsOnly:$symbolsOnly
+            $appFileName = GetAppFile -appFile $_.FullName -symbolsOnly:$symbolsOnly
             $appName = $_.Name
             if ($alreadyAdded -contains $appName) {
                 Write-Host -ForegroundColor Yellow "$($appName) was already published to NuGet"
