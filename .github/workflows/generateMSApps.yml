@@ -16,6 +16,10 @@ on:
         description: Business Central Version to generate nuget packages for
         required: true
         default: ''
+      symbolsOnly:
+        description: Generate Symbols Only NuGet packages
+        type: boolean
+        required: false
       run-name:
         description: Name of the run (leave empty to use the default name)
         required: false
@@ -52,5 +56,6 @@ jobs:
           artifactType: 'sandbox'
           artifactVersion: ${{ github.event.inputs.artifactVersion }}
           country: ${{ matrix.country }}
+          symbolsOnly: ${{ (github.event.inputs.symbolsOnly == 'true') && 'true' || vars.SYMBOLSONLY }}
         run: |
           . (Join-Path $env:GITHUB_WORKSPACE "GenerateMSApps.ps1")

@@ -16,6 +16,10 @@ on:
         description: Comma separated list of apps (leave empty to use APPS secret)
         required: false
         default: ''
+      symbolsOnly:
+        description: Generate Symbols Only NuGet packages
+        type: boolean
+        required: false
       run-name:
         description: Name of the run (leave empty to use the default name)
         required: false
@@ -46,5 +50,6 @@ jobs:
           nuGetToken: ${{ github.event.inputs.nuGetToken != '' && github.event.inputs.nuGetToken || secrets.NUGETTOKEN }}
           nuGetServerUrl: ${{ github.event.inputs.nuGetServerUrl != '' && github.event.inputs.nuGetServerUrl || vars.NUGETSERVERURL }}
           apps: ${{ github.event.inputs.apps != '' && github.event.inputs.apps || secrets.APPS }}
+          symbolsOnly: ${{ (github.event.inputs.symbolsOnly == 'true') && 'true' || vars.SYMBOLSONLY }}
         run: |
           . (Join-Path $env:GITHUB_WORKSPACE "GenerateNuGetPackages.ps1")

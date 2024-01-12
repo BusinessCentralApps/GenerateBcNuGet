@@ -1,4 +1,4 @@
-Write-Host "Generate Runtime NuGet Packages"
+Write-Host "Generate Microsoft Apps NuGet Packages"
 
 . (Join-Path $PSScriptRoot "HelperFunctions.ps1")
 
@@ -9,6 +9,7 @@ $nuGetToken = $env:nuGetToken
 $country = $env:country
 $artifactType = $env:artifactType
 $artifactVersion = $env:artifactVersion
+$symbolsOnly = ($env:symbolsOnly -eq 'true')
 
 $artifactUrl = Get-BCArtifactUrl -type $artifactType -country $country -version $artifactVersion
 if (-not ($artifactUrl)) {
@@ -30,18 +31,19 @@ else {
     if ($localApps -or $country -eq 'w1') {
         $alreadyAdded = @()
         @(Get-Item (Join-Path $folders[1] "ModernDev\program files\Microsoft Dynamics NAV\*\AL Development Environment\System.app"))+@(Get-ChildItem -Path (Join-Path $folders[0] "Extensions") -Filter '*.app' -Recurse)+@(Get-ChildItem -Path $applicationsFolder -Filter '*.app' -Recurse) | ForEach-Object {
-            $appFileName = $_.FullName
-            if ($alreadyAdded -contains $_.Name) {
-                Write-Host -ForegroundColor Yellow "$($_.Name) was already published to NuGet"
+            $appFileName = Get-AppFile -appFile $_.FullName -symbolsOnly:$symbolsOnly
+            $appName = $_.Name
+            if ($alreadyAdded -contains $appName) {
+                Write-Host -ForegroundColor Yellow "$($appName) was already published to NuGet"
             }
             else {
-                $alreadyAdded += @($_.Name)
+                $alreadyAdded += @($appName)
                 if ($country -eq 'w1') {
                     $packageId = "{publisher}.{name}.{id}"
-                    if ($_.Name -eq "Microsoft_Application.app" -or $_.Name -like "Microsoft_Application_*.app") {
+                    if ($appName -eq "Microsoft_Application.app" -or $appName -like "Microsoft_Application_*.app") {
                         $packageId = "Microsoft.Application"
                     }
-                    elseif ($_.Name -eq 'System.app') {
+                    elseif ($appName -eq 'System.app') {
                         $packageId = "Microsoft.Platform"
                     }
                     $package = New-BcNuGetPackage -appfiles $appFileName -packageId $packageId -dependencyIdTemplate "{publisher}.{name}.{id}" -applicationDependencyId "Microsoft.Application" -platformDependencyId "Microsoft.Platform"
@@ -49,10 +51,10 @@ else {
                 else {
                     $package = $null
                     $packageId = "{publisher}.{name}.$($country).{id}"
-                    if ($_.Name -eq "Microsoft_Application.app" -or $_.Name -like "Microsoft_Application_*.app") {
+                    if ($appName -eq "Microsoft_Application.app" -or $appName -like "Microsoft_Application_*.app") {
                         $packageId = "Microsoft.Application.$Country"
                     }
-                    elseif ($_.Name -eq 'System.app') {
+                    elseif ($appName -eq 'System.app') {
                         $packageId = ""
                     }
                     if ($packageId) {
@@ -79,6 +81,9 @@ else {
                     }
                     Remove-Item $package -Force
                 }
+            }
+            if ($appFileName -ne $_.FullName) {
+                Remove-Item $appFileName -Force
             }
         }
     }

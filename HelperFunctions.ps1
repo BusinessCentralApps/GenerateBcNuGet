@@ -210,3 +210,21 @@ function GenerateRuntimeAppFiles {
     }
     return $global:runtimeAppFiles, $global:countrySpecificRuntimeAppFiles
 }
+
+function GetAppFile {
+    Param(
+        [string] $appFile,
+        [switch] $symbolsOnly
+    )
+    if ($symbolsOnly) {
+        $symbolsFile = Join-Path ([System.IO.Path]::GetTempPath()) "([Guid]::NewGuid().ToString()).app"
+        Create-SymbolsFileFromAppFile -appFile $appFile -symbolsFile $symbolsFile
+        if (-not (Test-Path $symbolsFile)) {
+            throw "Could not create symbols file from $appFile"
+        }
+        return $symbolsFile
+    }
+    else {
+        return $appFile
+    }
+}
