@@ -226,7 +226,7 @@ function GetAppFile {
     elseif ($symbolsOnly) {
         $symbolsFile = Join-Path ([System.IO.Path]::GetTempPath()) "$([Guid]::NewGuid().ToString()).app"
         Write-Host "Creating symbols file $symbolsFile"
-        Create-SymbolsFileFromAppFile -appFile $appFile -symbolsFile $symbolsFile
+        Create-SymbolsFileFromAppFile -appFile $appFile -symbolsFile $symbolsFile | Out-Null
         if (-not (Test-Path $symbolsFile)) {
             throw "Could not create symbols file from $appFile"
         }
