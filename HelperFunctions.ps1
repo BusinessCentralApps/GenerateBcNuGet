@@ -219,11 +219,7 @@ function GetAppFile {
     )
     Write-Host "'$appFile'"
     Write-Host $appFile.GetType()
-    if ([System.IO.Path]::GetFileName($appFile) -eq 'System.app') {
-        # System app is already a symbols file
-        return $appFile
-    }
-    elseif ($symbolsOnly) {
+    if ($symbolsOnly) {
         $symbolsFile = Join-Path ([System.IO.Path]::GetTempPath()) "$([Guid]::NewGuid().ToString()).app"
         Write-Host "Creating symbols file $symbolsFile"
         Create-SymbolsFileFromAppFile -appFile $appFile -symbolsFile $symbolsFile | Out-Null
