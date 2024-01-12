@@ -216,6 +216,8 @@ function GetAppFile {
         [string] $appFile,
         [switch] $symbolsOnly
     )
+    Write-Host "'$appFile'"
+    Write-Host $appFile.GetType()
     if ([System.IO.Path]::GetFileName($appFile) -eq 'System.app') {
         # System app is already a symbols file
         return $appFile
