@@ -59,3 +59,16 @@ jobs:
           symbolsOnly: ${{ (github.event.inputs.symbolsOnly == 'true') && 'true' || vars.SYMBOLSONLY }}
         run: |
           . (Join-Path $env:GITHUB_WORKSPACE "GenerateMSApps.ps1")
+
+      - name: Generate MS Apps (retry)
+        shell: pwsh
+        env:
+          nuGetToken: ${{ github.event.inputs.nuGetToken != '' && github.event.inputs.nuGetToken || (secrets.MSAPPSNUGETTOKEN != '' && secrets.MSAPPSNUGETTOKEN || secrets.NUGETTOKEN) }}
+          nuGetServerUrl: ${{ github.event.inputs.nuGetServerUrl != '' && github.event.inputs.nuGetServerUrl || (vars.MSAPPSNUGETSERVERURL != '' && vars.MSAPPSNUGETSERVERURL || vars.NUGETSERVERURL) }}
+          artifactType: 'sandbox'
+          artifactVersion: ${{ github.event.inputs.artifactVersion }}
+          country: ${{ matrix.country }}
+          symbolsOnly: ${{ (github.event.inputs.symbolsOnly == 'true') && 'true' || vars.SYMBOLSONLY }}
+        run: |
+          Start-Sleep -Seconds 60
+          . (Join-Path $env:GITHUB_WORKSPACE "GenerateMSApps.ps1")
