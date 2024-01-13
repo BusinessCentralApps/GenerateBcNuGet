@@ -47,6 +47,8 @@ else {
             }
             else {
                 $alreadyAdded += @($appName)
+                $package = $null
+                $destinationFolder = Join-Path ([System.IO.Path]::GetTempPath()) ([GUID]::NewGuid().ToString())
                 if ($country -eq 'w1') {
                     $packageId = "{publisher}.{name}.{id}"
                     if ($appName -eq "Microsoft_Application.app" -or $appName -like "Microsoft_Application_*.app") {
@@ -55,10 +57,9 @@ else {
                     elseif ($appName -eq 'System.app') {
                         $packageId = "Microsoft.Platform"
                     }
-                    $package = New-BcNuGetPackage -appfiles $appFileName -packageId $packageId -dependencyIdTemplate "{publisher}.{name}.{id}" -applicationDependencyId "Microsoft.Application" -platformDependencyId "Microsoft.Platform"
+                    $package = New-BcNuGetPackage -appfiles $appFileName -packageId $packageId -dependencyIdTemplate "{publisher}.{name}.{id}" -applicationDependencyId "Microsoft.Application" -platformDependencyId "Microsoft.Platform" -destinationFolder $destinationFolder
                 }
                 else {
-                    $package = $null
                     $packageId = "{publisher}.{name}.$($country).{id}"
                     if ($appName -eq "Microsoft_Application.app" -or $appName -like "Microsoft_Application_*.app") {
                         $packageId = "Microsoft.Application.$Country"
@@ -67,30 +68,34 @@ else {
                         $packageId = ""
                     }
                     if ($packageId) {
-                        $package = New-BcNuGetPackage -appfiles $appFileName -packageId $packageId -dependencyIdTemplate "{publisher}.{name}.$($country).{id}" -applicationDependencyId "Microsoft.Application.$country" -platformDependencyId "Microsoft.Platform"
+                        $package = New-BcNuGetPackage -appfiles $appFileName -packageId $packageId -dependencyIdTemplate "{publisher}.{name}.$($country).{id}" -applicationDependencyId "Microsoft.Application.$country" -platformDependencyId "Microsoft.Platform" -destinationFolder $destinationFolder
                     }
                 }
                 if ($package) {
+                    $nuspecFile = Join-Path $destinationFolder 'manifest.nuspec'
+                    $nuspec = [xml](Get-Content -Path $nuspecFile -Encoding UTF8)
+                    $packageId = $nuspec.package.metadata.id
                     $cnt = 0
                     while ($true) {
                         try {
                             $cnt++
                             Push-BcNuGetPackage -nuGetServerUrl $nuGetServerUrl -nuGetToken $nuGetToken -bcNuGetPackage $package
-                            AddToSummary -ForegroundColor Yellow "$appName pushed to NuGet"
+                            AddToSummary -ForegroundColor Yellow "$packageId pushed to NuGet"
                             break
                         }
                         catch {
                             if ($_.Exception.Message -like '*Conflict - The feed already contains*') {
-                                AddToSummary "$appName already exists"
+                                AddToSummary "$packageName already exists"
                                 break
                             }
                             if ($cnt -eq 5) { throw $_ }
-                            AddToSummary "Error pushing package: $($_.Exception.Message). Retry in 10 seconds"
+                            AddToSummary "Error pushing $($packageId): $($_.Exception.Message). Retry in 10 seconds"
                             Start-Sleep -Seconds 10
                         }
                     }
                     Remove-Item $package -Force
                 }
+                Remove-Item $destinationFolder -Force
             }
             if ($appFileName -ne $_.FullName) {
                 Remove-Item $appFileName -Force
