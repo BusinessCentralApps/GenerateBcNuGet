@@ -50,7 +50,7 @@ jobs:
 
       - name: Generate MS Apps
         shell: pwsh
-        timeout-minutes: 60
+        timeout-minutes: 30
         env:
           nuGetToken: ${{ github.event.inputs.nuGetToken != '' && github.event.inputs.nuGetToken || (secrets.MSAPPSNUGETTOKEN != '' && secrets.MSAPPSNUGETTOKEN || secrets.NUGETTOKEN) }}
           nuGetServerUrl: ${{ github.event.inputs.nuGetServerUrl != '' && github.event.inputs.nuGetServerUrl || (vars.MSAPPSNUGETSERVERURL != '' && vars.MSAPPSNUGETSERVERURL || vars.NUGETSERVERURL) }}
