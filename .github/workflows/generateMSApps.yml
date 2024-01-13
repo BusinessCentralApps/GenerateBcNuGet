@@ -29,7 +29,7 @@ run-name: ${{ github.event.inputs.run-name != '' && github.event.inputs.run-name
 
 concurrency:
   group: ${{ github.event.inputs.run-name != '' && github.event.inputs.run-name || github.workflow }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   GenerateMSAppsNuGetPackages:
