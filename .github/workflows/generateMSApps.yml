@@ -62,6 +62,7 @@ jobs:
           . (Join-Path $env:GITHUB_WORKSPACE "GenerateMSApps.ps1")
 
       - name: Generate MS Apps (retry)
+        if: failure()
         shell: pwsh
         timeout-minutes: 60
         env:
