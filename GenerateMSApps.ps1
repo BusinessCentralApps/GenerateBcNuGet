@@ -95,7 +95,9 @@ else {
                     }
                     Remove-Item $package -Force
                 }
-                Remove-Item $destinationFolder -Force
+                if (Test-Path $destinationFolder) {
+                    Remove-Item $destinationFolder -Force
+                }
             }
             if ($appFileName -ne $_.FullName) {
                 Remove-Item $appFileName -Force
