@@ -62,7 +62,6 @@ jobs:
           symbolsOnly: ${{ (github.event.inputs.symbolsOnly == 'true') && 'true' || vars.SYMBOLSONLY }}
         run: |
           . (Join-Path $env:GITHUB_WORKSPACE "GenerateMSApps.ps1")
-          Add-Content -Path $ENV:GITHUB_STEP_SUMMARY -Value "Success on $env:artifactVersion $env:country."
 
       - name: Generate MS Apps (retry)
         if: steps.firstAttempt.outcome == 'Failure'
@@ -76,7 +75,7 @@ jobs:
           country: ${{ matrix.country }}
           symbolsOnly: ${{ (github.event.inputs.symbolsOnly == 'true') && 'true' || vars.SYMBOLSONLY }}
         run: |
-          Add-Content -Path $ENV:GITHUB_STEP_SUMMARY -Value "Failure on $env:artifactVersion $env:country. Retrying in 60 seconds..."
+          Add-Content -Path $ENV:GITHUB_STEP_SUMMARY -Value "Failure. Retrying in 60 seconds..."
           Start-Sleep -Seconds 60
           . (Join-Path $env:GITHUB_WORKSPACE "GenerateMSApps.ps1")
-          Add-Content -Path $ENV:GITHUB_STEP_SUMMARY -Value "Success on $env:artifactVersion $env:country."
+

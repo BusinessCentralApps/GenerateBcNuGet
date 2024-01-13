@@ -11,16 +11,24 @@ $artifactType = $env:artifactType
 $artifactVersion = $env:artifactVersion
 $symbolsOnly = ($env:symbolsOnly -eq 'true')
 
+function AddToSummary {
+    Param(
+        [string] $message
+    )
+    Add-Content -Path $ENV:GITHUB_STEP_SUMMARY -Value $message -encoding utf8
+    Write-Host $message
+}
+
 $artifactUrl = Get-BCArtifactUrl -type $artifactType -country $country -version $artifactVersion
 if (-not ($artifactUrl)) {
-    Write-Host "No artifact found for type '$artifactType', country '$country' and version '$artifactVersion'"
+    AddToSummary "No artifact found for type '$artifactType', country '$country' and version '$artifactVersion'"
 }
 else {
     $folders = Download-Artifacts -artifactUrl $artifactUrl -includePlatform
     $applicationsFolder = Join-Path $folders[0] "Applications.$country"
     $localApps = Test-Path $applicationsFolder
     if ($localApps) {
-        Write-Host "Local apps exists for $country"
+        AddToSummary "Local apps exists for $country"
     }
     elseif ($country -ne 'w1') {
         throw "No local apps exists for $country"
@@ -32,12 +40,10 @@ else {
         $alreadyAdded = @()
         @(Get-Item (Join-Path $folders[1] "ModernDev\program files\Microsoft Dynamics NAV\*\AL Development Environment\System.app"))+@(Get-ChildItem -Path (Join-Path $folders[0] "Extensions") -Filter '*.app' -Recurse)+@(Get-ChildItem -Path $applicationsFolder -Filter '*.app' -Recurse) | ForEach-Object {
             $appFileName = $_.FullName
-            Write-Host "- $appFileName"
-            Write-Host $appFileName.gettype()
             $appFileName = GetAppFile -appFile $appFileName -symbolsOnly:$symbolsOnly
             $appName = $_.Name
             if ($alreadyAdded -contains $appName) {
-                Write-Host -ForegroundColor Yellow "$($appName) was already published to NuGet"
+                AddToSummary -ForegroundColor Yellow "$appName was already published to NuGet"
             }
             else {
                 $alreadyAdded += @($appName)
@@ -70,15 +76,16 @@ else {
                         try {
                             $cnt++
                             Push-BcNuGetPackage -nuGetServerUrl $nuGetServerUrl -nuGetToken $nuGetToken -bcNuGetPackage $package
+                            AddToSummary -ForegroundColor Yellow "$appName pushed to NuGet"
                             break
                         }
                         catch {
                             if ($_.Exception.Message -like '*Conflict - The feed already contains*') {
-                                Write-Host "Package already exists"
+                                AddToSummary "$appName already exists"
                                 break
                             }
                             if ($cnt -eq 5) { throw $_ }
-                            Write-Host "Error pushing package: $($_.Exception.Message). Retry in 10 seconds"
+                            AddToSummary "Error pushing package: $($_.Exception.Message). Retry in 10 seconds"
                             Start-Sleep -Seconds 10
                         }
                     }
