@@ -10,6 +10,8 @@ Remove-Item "$tempName.zip"
 $bcContainerHelperPath = (Get-Item -Path (Join-Path $tempName "*\BcContainerHelper.ps1")).FullName
 . $bcContainerHelperPath
 
+$bcContainerHelperConfig.DoNotUseCdnForArtifacts = $true
+
 $ErrorActionPreference = "stop"
 
 function GetRuntimeDependencyPackageId {
