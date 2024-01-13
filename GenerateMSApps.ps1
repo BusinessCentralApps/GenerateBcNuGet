@@ -43,7 +43,7 @@ else {
             $appFileName = GetAppFile -appFile $appFileName -symbolsOnly:$symbolsOnly
             $appName = $_.Name
             if ($alreadyAdded -contains $appName) {
-                AddToSummary -ForegroundColor Yellow "$appName was already published to NuGet"
+                Write-Host -ForegroundColor Yellow "$appName was already published to NuGet"
             }
             else {
                 $alreadyAdded += @($appName)
@@ -85,7 +85,7 @@ else {
                         }
                         catch {
                             if ($_.Exception.Message -like '*Conflict - The feed already contains*') {
-                                AddToSummary "$packageName already exists"
+                                AddToSummary "$packageId already exists"
                                 break
                             }
                             if ($cnt -eq 5) { throw $_ }
