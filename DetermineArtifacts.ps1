@@ -24,6 +24,8 @@ if ($artifactVersion -eq '' -or $artifactVersion.EndsWith('-')) {
     # Find the highest application dependency for the apps in order to determine which BC Application version to use for runtime packages
     $highestApplicationDependency = GetHighestApplicationDependency -apps $apps -lowestVersion ($artifactVersion.Split('-')[0])
 
+    Write-Host "Highest application dependency: $highestApplicationDependency"
+
     # Determine which artifacts are needed for any of the apps
     $allArtifactVersions = @(GetArtifactVersionsSince -type $artifactType -country $country -version "$highestApplicationDependency")
 

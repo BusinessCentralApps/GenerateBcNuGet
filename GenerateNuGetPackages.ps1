@@ -7,6 +7,7 @@ $apps = @(Copy-AppFilesToFolder -appFiles @("$env:apps".Split(',')) -folder $app
 
 $nuGetServerUrl, $githubRepository = GetNuGetServerUrlAndRepository -nuGetServerUrl $env:nuGetServerUrl
 $nuGetToken = $env:nuGetToken
+$symbolsOnly = ($env:symbolsOnly -eq 'true')
 
 foreach($appFile in $apps) {
     $appJson = Get-AppJsonFromAppFile -appFile $appFile
@@ -18,7 +19,11 @@ foreach($appFile in $apps) {
     $package = Get-BcNuGetPackage -packageName $appJson.id -version $appJson.version -select Exact
     if (-not $package) {
         # If just one of the apps doesn't exist as a nuGet package, we need to create a new indirect nuGet package and build all runtime versions of the nuGet
-        $package = New-BcNuGetPackage -appfile $appFile -githubRepository $githubRepository
+        $useAppFile = GetAppFile -appFile $appFile -symbolsOnly:$symbolsOnly
+        $package = New-BcNuGetPackage -appfile $useAppFile -githubRepository $githubRepository
         Push-BcNuGetPackage -nuGetServerUrl $nuGetServerUrl -nuGetToken $nuGetToken -bcNuGetPackage $package
+        if ($useAppFile -ne $appFile) {
+            Remove-Item -Path $useAppFile -Force
+        }
     }
 }

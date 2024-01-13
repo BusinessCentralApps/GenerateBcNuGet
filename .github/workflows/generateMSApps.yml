@@ -1,0 +1,76 @@
+name: Generate Microsoft Apps NuGet Packages
+
+# Controls when the workflow will run
+on:
+  workflow_dispatch:
+    inputs:
+      nuGetServerUrl:
+        description: NuGet server URL (leave empty to use NUGETSERVERURL variable)
+        required: false
+        default: ''
+      nuGetToken:
+        description: NuGet auth token (leave empty to use NUGETTOKEN secret)
+        required: false
+        default: ''
+      artifactVersion:
+        description: Business Central Version to generate nuget packages for
+        required: true
+        default: ''
+      symbolsOnly:
+        description: Generate Symbols Only NuGet packages
+        type: boolean
+        required: false
+      run-name:
+        description: Name of the run (leave empty to use the default name)
+        required: false
+        default: ''
+
+run-name: ${{ github.event.inputs.run-name != '' && github.event.inputs.run-name || github.workflow }}
+
+concurrency:
+  group: ${{ github.event.inputs.run-name != '' && github.event.inputs.run-name || github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  GenerateMSAppsNuGetPackages:
+    runs-on: [ windows-latest ]
+    strategy:
+      matrix:
+        country: [ "AT", "AU", "BE", "CA", "CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IN", "IS", "IT", "MX", "NL", "NO", "NZ", "SE", "US", "W1" ]
+      fail-fast: false
+    name: ${{ matrix.country }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Mask input
+        shell: pwsh
+        run: |
+          . (Join-Path $env:GITHUB_WORKSPACE "MaskInput.ps1")
+
+      - name: Generate MS Apps
+        shell: pwsh
+        timeout-minutes: 60
+        env:
+          nuGetToken: ${{ github.event.inputs.nuGetToken != '' && github.event.inputs.nuGetToken || (secrets.MSAPPSNUGETTOKEN != '' && secrets.MSAPPSNUGETTOKEN || secrets.NUGETTOKEN) }}
+          nuGetServerUrl: ${{ github.event.inputs.nuGetServerUrl != '' && github.event.inputs.nuGetServerUrl || (vars.MSAPPSNUGETSERVERURL != '' && vars.MSAPPSNUGETSERVERURL || vars.NUGETSERVERURL) }}
+          artifactType: 'sandbox'
+          artifactVersion: ${{ github.event.inputs.artifactVersion }}
+          country: ${{ matrix.country }}
+          symbolsOnly: ${{ (github.event.inputs.symbolsOnly == 'true') && 'true' || vars.SYMBOLSONLY }}
+        run: |
+          . (Join-Path $env:GITHUB_WORKSPACE "GenerateMSApps.ps1")
+
+      - name: Generate MS Apps (retry)
+        shell: pwsh
+        timeout-minutes: 60
+        env:
+          nuGetToken: ${{ github.event.inputs.nuGetToken != '' && github.event.inputs.nuGetToken || (secrets.MSAPPSNUGETTOKEN != '' && secrets.MSAPPSNUGETTOKEN || secrets.NUGETTOKEN) }}
+          nuGetServerUrl: ${{ github.event.inputs.nuGetServerUrl != '' && github.event.inputs.nuGetServerUrl || (vars.MSAPPSNUGETSERVERURL != '' && vars.MSAPPSNUGETSERVERURL || vars.NUGETSERVERURL) }}
+          artifactType: 'sandbox'
+          artifactVersion: ${{ github.event.inputs.artifactVersion }}
+          country: ${{ matrix.country }}
+          symbolsOnly: ${{ (github.event.inputs.symbolsOnly == 'true') && 'true' || vars.SYMBOLSONLY }}
+        run: |
+          Start-Sleep -Seconds 60
+          . (Join-Path $env:GITHUB_WORKSPACE "GenerateMSApps.ps1")

@@ -1,4 +1,5 @@
 $bcContainerHelperVersion = 'https://bccontainerhelper.blob.core.windows.net/public/preview.zip'
+$bcContainerHelperVersion = "https://github.com/freddydk/navcontainerhelper/archive/refs/heads/nuget.zip"
 
 $tempName = Join-Path ([System.IO.Path]::GetTempPath()) ([Guid]::NewGuid().ToString())
 Write-Host "Downloading BcContainerHelper developer version from $bcContainerHelperVersion"
@@ -121,7 +122,8 @@ function GetArtifactVersionsSince {
     Param(
         [string] $type,
         [string] $country,
-        [string] $version
+        [string] $version,
+        [switch] $includeLatest
     )
     $artifactVersions = @()
     $applicationVersion = [System.Version]$version
@@ -129,6 +131,12 @@ function GetArtifactVersionsSince {
         $artifacturl = Get-BCArtifactUrl -type $type -country $country -version "$applicationVersion" -select Closest
         if ($artifacturl) {
             $artifactVersions += @([System.Version]($artifacturl.split('/')[4]))
+            if ($includeLatest) {
+                $latestArtifacturl = Get-BCArtifactUrl -type $type -country $country -version "$($applicationVersion.Major).$($applicationVersion.Minor).$([Int32]::MaxValue).$([Int32]::MaxValue)" -select Closest
+                if ($latestArtifacturl -ne $artifacturl) {
+                    $artifactVersions += @([System.Version]($latestArtifacturl.split('/')[4]))
+                }
+            }
             $applicationVersion = [System.Version]"$($applicationVersion.Major).$($applicationVersion.Minor+1).0.0"
         }
         elseif ($applicationVersion.Minor -eq 0) {
@@ -202,4 +210,25 @@ function GenerateRuntimeAppFiles {
         } | Out-Null
     }
     return $global:runtimeAppFiles, $global:countrySpecificRuntimeAppFiles
+}
+
+function GetAppFile {
+    Param(
+        [string] $appFile,
+        [switch] $symbolsOnly
+    )
+    Write-Host "'$appFile'"
+    Write-Host $appFile.GetType()
+    if ($symbolsOnly) {
+        $symbolsFile = Join-Path ([System.IO.Path]::GetTempPath()) "$([Guid]::NewGuid().ToString()).app"
+        Write-Host "Creating symbols file $symbolsFile"
+        Create-SymbolsFileFromAppFile -appFile $appFile -symbolsFile $symbolsFile | Out-Null
+        if (-not (Test-Path $symbolsFile)) {
+            throw "Could not create symbols file from $appFile"
+        }
+        return $symbolsFile
+    }
+    else {
+        return $appFile
+    }
 }
