@@ -58,13 +58,14 @@ jobs:
     outputs:
       artifactVersions: ${{ steps.determineArtifacts.outputs.ArtifactVersions }}
       artifactVersionCount: ${{ steps.determineArtifacts.outputs.ArtifactVersionCount }}
-      runtimeDependencyPackageIds: ${{ steps.determineArtifacts.outputs.RuntimeDependencyPackageIds }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
       - name: Mask input
         shell: pwsh
+        env:
+          secrets: ${{ toJson(secrets) }}
         run: |
           . (Join-Path $env:GITHUB_WORKSPACE "MaskInput.ps1")
 
@@ -97,6 +98,8 @@ jobs:
 
       - name: Mask input
         shell: pwsh
+        env:
+          secrets: ${{ toJson(secrets) }}
         run: |
           . (Join-Path $env:GITHUB_WORKSPACE "MaskInput.ps1")
 
@@ -113,7 +116,6 @@ jobs:
           licenseFileUrl: ${{ github.event.inputs.licenseFileUrl != '' && github.event.inputs.licenseFileUrl || secrets.LICENSEFILEURL }}
           artifactVersion: ${{ matrix.artifactVersion }}
           incompatibleArtifactVersion: ${{ matrix.incompatibleArtifactVersion }}
-          runtimeDependencyPackageIds: ${{ needs.DetermineArtifacts.outputs.runtimeDependencyPackageIds }}
         run: |
           . (Join-Path $env:GITHUB_WORKSPACE "GenerateRuntimeNuGetPackages.ps1")
 
@@ -128,6 +130,8 @@ jobs:
 
       - name: Mask input
         shell: pwsh
+        env:
+          secrets: ${{ toJson(secrets) }}
         run: |
           . (Join-Path $env:GITHUB_WORKSPACE "MaskInput.ps1")
 

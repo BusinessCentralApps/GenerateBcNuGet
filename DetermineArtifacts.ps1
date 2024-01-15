@@ -55,7 +55,3 @@ Write-Host "Artifact versions:"
 $artifactVersions | ForEach-Object { Write-Host "- $(ConvertTo-Json -InputObject $_ -Compress)" }
 Add-Content -Path $ENV:GITHUB_OUTPUT -Value "ArtifactVersions=$(ConvertTo-Json -InputObject @($artifactVersions) -Compress)" -Encoding UTF8
 Add-Content -Path $ENV:GITHUB_OUTPUT -Value "ArtifactVersionCount=$($artifactVersions.Count)" -Encoding UTF8
-
-Write-Host "RuntimeDependencyPackageIds:"
-$runtimeDependencyPackageIds.Keys | ForEach-Object { Write-Host "- $_ = $($runtimeDependencyPackageIds."$_")" }
-Add-Content -Path $ENV:GITHUB_OUTPUT -Value "RuntimeDependencyPackageIds=$(ConvertTo-Json -InputObject $runtimeDependencyPackageIds -Compress)" -Encoding UTF8

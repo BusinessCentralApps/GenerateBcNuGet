@@ -45,6 +45,8 @@ jobs:
 
       - name: Mask input
         shell: pwsh
+        env:
+          secrets: ${{ toJson(secrets) }}
         run: |
           . (Join-Path $env:GITHUB_WORKSPACE "MaskInput.ps1")
 

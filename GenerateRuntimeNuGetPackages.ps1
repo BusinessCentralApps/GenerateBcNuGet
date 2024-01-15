@@ -22,8 +22,9 @@ if ($artifactType -eq '') { $artifactType = 'sandbox' }
 # Artifact version is from the matrix
 $artifactVersion = $env:artifactVersion
 $incompatibleArtifactVersion = $env:incompatibleArtifactVersion
-# Runtime Dependency Package Ids is from the determine artifacts job
-$runtimeDependencyPackageIds = $env:runtimedependencyPackageIds | ConvertFrom-Json | ConvertTo-HashTable
+
+# Determine runtime dependency package ids for all apps and whether any of the apps doesn't exist as a nuGet package
+$runtimeDependencyPackageIds, $newPackage = GetRuntimeDependencyPackageIds -apps $apps -nuGetServerUrl $nuGetServerUrl -nuGetToken $nuGetToken
 
 $licenseFileUrl = $env:licenseFileUrl
 if ([System.Version]$artifactVersion -ge [System.Version]'22.0.0.0') {
