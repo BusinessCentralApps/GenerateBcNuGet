@@ -159,8 +159,8 @@ In order to push new packages and package versions, you need to create a Persona
 > Do NOT share this token with other people, this token should ONLY be used for generating packages.
 
 > [!NOTE]
-> GitHub packages are private (even if the owning repository is public)
-> In order for people to get access to your NuGet packages, you need to invite them to your repository (read permissions is sufficient). They will then get an invitation to join the repository and after use their own Personal Access Token with read:packages permissions for accessing packages in your organization.
+> GitHub packages are private by default (even if the owning repository is public)
+> In order for people to get access to your NuGet packages, you either have to change visibility of the package to public or you need to invite them to your repository (read permissions is sufficient). They will then get an invitation to join the repository and after use their own Personal Access Token with read:packages permissions for accessing packages in your organization. Even if the packages are public, people still needs to authenticate in order to download packages.
 
 ### Using Azure DevOps
 
@@ -268,3 +268,14 @@ $nuGetServerUrl = 'https://api.nuget.org/v3/index.json'
 $nuGetToken = '<your NuGet API Key>'
 gh workflow run --repo <your account>/GenerateBcNuGet "Generate Runtime NuGet Packages" -f apps=$apps -f nuGetServerUrl=$nuGetServerUrl -f nuGetToken=$nuGetToken -f country=w1
 ```
+
+## Secrets
+
+If you are using a company name or like in the name of your apps, and you don't want to share this with the public (since this repository is public), you can create secrets in your fork of the repository, like:
+
+```
+MASK1 = Microsoft
+MASK2 = Freddy
+```
+
+With these secrets in place, the workflow log will replace all occurrences of Microsoft or Freddy with ***.
