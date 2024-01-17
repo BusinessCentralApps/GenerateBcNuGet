@@ -11,7 +11,7 @@ $artifactType = $env:artifactType
 $artifactVersion = $env:artifactVersion
 $symbolsOnly = ($env:symbolsOnly -eq 'true')
 if ($symbolsOnly) {
-    $symbolsStr = 'symbols'
+    $symbolsStr = '.symbols'
 }
 else {
     $symbolsStr = ''
