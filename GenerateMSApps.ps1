@@ -10,6 +10,12 @@ $country = $env:country
 $artifactType = $env:artifactType
 $artifactVersion = $env:artifactVersion
 $symbolsOnly = ($env:symbolsOnly -eq 'true')
+if ($symbolsOnly) {
+    $symbolsStr = 'symbols'
+}
+else {
+    $symbolsStr = ''
+}
 
 function AddToSummary {
     Param(
@@ -50,25 +56,25 @@ else {
                 $package = $null
                 $destinationFolder = Join-Path ([System.IO.Path]::GetTempPath()) ([GUID]::NewGuid().ToString())
                 if ($country -eq 'w1') {
-                    $packageId = "{publisher}.{name}.{id}"
+                    $packageId = "{publisher}.{name}$symbolsStr.{id}"
                     if ($appName -eq "Microsoft_Application.app" -or $appName -like "Microsoft_Application_*.app") {
-                        $packageId = "Microsoft.Application"
+                        $packageId = "Microsoft.Application$symbolsStr"
                     }
                     elseif ($appName -eq 'System.app') {
-                        $packageId = "Microsoft.Platform"
+                        $packageId = "Microsoft.Platform$symbolsStr"
                     }
-                    $package = New-BcNuGetPackage -appfiles $appFileName -packageId $packageId -dependencyIdTemplate "{publisher}.{name}.{id}" -applicationDependencyId "Microsoft.Application" -platformDependencyId "Microsoft.Platform" -destinationFolder $destinationFolder
+                    $package = New-BcNuGetPackage -appfiles $appFileName -packageId $packageId -dependencyIdTemplate "{publisher}.{name}$symbolsStr.{id}" -applicationDependencyId "Microsoft.Application$symbolsStr" -platformDependencyId "Microsoft.Platform$symbolsStr" -destinationFolder $destinationFolder
                 }
                 else {
-                    $packageId = "{publisher}.{name}.$($country).{id}"
+                    $packageId = "{publisher}.{name}.$($country)$symbolsStr.{id}"
                     if ($appName -eq "Microsoft_Application.app" -or $appName -like "Microsoft_Application_*.app") {
-                        $packageId = "Microsoft.Application.$Country"
+                        $packageId = "Microsoft.Application.$Country$symbolsStr"
                     }
                     elseif ($appName -eq 'System.app') {
                         $packageId = ""
                     }
                     if ($packageId) {
-                        $package = New-BcNuGetPackage -appfiles $appFileName -packageId $packageId -dependencyIdTemplate "{publisher}.{name}.$($country).{id}" -applicationDependencyId "Microsoft.Application.$country" -platformDependencyId "Microsoft.Platform" -destinationFolder $destinationFolder
+                        $package = New-BcNuGetPackage -appfiles $appFileName -packageId $packageId -dependencyIdTemplate "{publisher}.{name}.$country$symbolsStr.{id}" -applicationDependencyId "Microsoft.Application.$country$symbolsStr" -platformDependencyId "Microsoft.Platform$symbolsStr" -destinationFolder $destinationFolder
                     }
                 }
                 if ($package) {

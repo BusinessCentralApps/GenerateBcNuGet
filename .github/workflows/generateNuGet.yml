@@ -20,6 +20,10 @@ on:
         description: Generate Symbols Only NuGet packages
         type: boolean
         required: false
+      packageIdTemplate:
+        description: Package ID (leave empty to use the default package ID)
+        required: false
+        default: '{publisher}.{name}.{id}'
       run-name:
         description: Name of the run (leave empty to use the default name)
         required: false
@@ -53,5 +57,6 @@ jobs:
           nuGetServerUrl: ${{ github.event.inputs.nuGetServerUrl != '' && github.event.inputs.nuGetServerUrl || vars.NUGETSERVERURL }}
           apps: ${{ github.event.inputs.apps != '' && github.event.inputs.apps || secrets.APPS }}
           symbolsOnly: ${{ (github.event.inputs.symbolsOnly == 'true') && 'true' || vars.SYMBOLSONLY }}
+          packageIdTemplate: ${{ github.event.inputs.packageIdTemplate != '' && github.event.inputs.packageIdTemplate || vars.PACKAGEIDTEMPLATE }}
         run: |
           . (Join-Path $env:GITHUB_WORKSPACE "GenerateNuGetPackages.ps1")
