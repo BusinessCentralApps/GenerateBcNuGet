@@ -79,6 +79,7 @@ function GetNuGetServerUrlAndRepository {
     }
     return $nuGetServerUrl, $githubRepository
 }
+
 function NormalizeVersionStr {
     Param(
         [string] $versionStr
