@@ -223,7 +223,9 @@ function GetAppFile {
     Write-Host "'$appFile'"
     Write-Host $appFile.GetType()
     if ($symbolsOnly) {
-        $symbolsFile = Join-Path ([System.IO.Path]::GetTempPath()) "$([Guid]::NewGuid().ToString()).app"
+        $symbolsFolder = Join-Path ([System.IO.Path]::GetTempPath()) ([Guid]::NewGuid().ToString())
+        New-Item -Path $symbolsFolder -ItemType Directory | Out-Null
+        $symbolsFile = Join-Path $symbolsFolder "$([System.IO.Path]::GetFileNameWithoutExtension(($appFile)))_symbols.app"
         Write-Host "Creating symbols file $symbolsFile"
         Create-SymbolsFileFromAppFile -appFile $appFile -symbolsFile $symbolsFile | Out-Null
         if (-not (Test-Path $symbolsFile)) {
