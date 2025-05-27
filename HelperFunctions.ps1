@@ -1,4 +1,4 @@
-$bcContainerHelperVersion = 'https://bccontainerhelper.blob.core.windows.net/public/preview.zip'
+$bcContainerHelperVersion = 'https://bccontainerhelper-addgd5gzaxf9fneh.b02.azurefd.net/public/preview.zip'
 
 $tempName = Join-Path ([System.IO.Path]::GetTempPath()) ([Guid]::NewGuid().ToString())
 Write-Host "Downloading BcContainerHelper developer version from $bcContainerHelperVersion"
